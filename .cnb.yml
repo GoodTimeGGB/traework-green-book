@@ -1,0 +1,12 @@
+# CNB 云原生构建配置
+# 触发：推送到 main 分支时，自动把静态站点部署到 EdgeOne Pages（EdgeOne 网络托管 + 全球加速）
+# 前置：在 CNB 仓库「变量/密钥」里配置 EDGEONE_API_TOKEN（EdgeOne Pages 的 API Token）
+# 并在 EdgeOne Pages 控制台先手动建好项目 traework-green-book（类型：直接上传）
+
+main:
+  push:
+    - stages:
+        - name: Deploy to EdgeOne Pages
+          image: node:22
+          script:
+            - npx edgeone pages deploy . -n traework-green-book -t $EDGEONE_API_TOKEN

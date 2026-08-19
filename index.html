@@ -1,0 +1,1897 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TraeWork 绿皮书 · 从入门到精通（官方知识库整理版）</title>
+<!-- 注：为支持国内静态托管/CDN 部署，已移除 Google Fonts 外部依赖，字体回退到系统中文字体 -->
+<style>
+  /* ============================================================
+     TraeWork 绿皮书 · v1.1 2026 年 8 月
+     衬线书体 / 纸墨色系 / 三线表 / 书眉式章节页 / 无 emoji
+     主题色采用 TRAE 品牌色：近黑深绿底 + 薄荷绿 #32F08C 点缀
+     排版风格仿自 WorkBuddy 绿皮书
+     ============================================================ */
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; font-size: 16px; }
+
+  :root {
+    --paper: #f6f4ec;
+    --paper-raised: #fcfbf5;
+    --ink: #272b25;
+    --ink-soft: #4d554c;
+    --ink-mute: #7c857b;
+    --hairline: #ddd8c8;
+    /* TRAE 品牌色系：深底 + 薄荷绿点缀 */
+    --green-900: #10271d;   /* 侧边栏/封面底：深墨绿 */
+    --green-800: #154934;   /* 章节号粗线、深点缀 */
+    --green-700: #138a52;   /* 章节号、链接（深一点保证可读） */
+    --green-600: #1fb96b;
+    --green-200: #b9f3d2;   /* TRAE 薄荷绿浅化 */
+    --green-100: #e7fbee;
+    --brand: #32f08c;       /* TRAE 品牌薄荷绿 */
+    --brand-soft: #8af7bd;
+    --rust: #9c4a2f;
+    --gold: #8a6d1f;
+    --sidebar-w: 300px;
+    --font-serif: "Noto Serif SC", "Source Han Serif SC", "Source Han Serif CN", "STSong", "SimSun", serif;
+    --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+    --font-mono: "Sarasa Mono SC", "JetBrains Mono", "Fira Code", Consolas, "Courier New", monospace;
+  }
+
+  body {
+    font-family: var(--font-serif);
+    background: var(--paper);
+    color: var(--ink);
+    line-height: 1.9;
+    font-size: 1rem;
+    font-kerning: normal;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    counter-reset: fig;
+  }
+
+  #sidebar {
+    position: fixed; left: 0; top: 0; width: var(--sidebar-w); height: 100vh;
+    background: linear-gradient(180deg, var(--green-900) 0%, #0c1f17 100%);
+    color: #d7e7dd; overflow-y: auto;
+    z-index: 100; transition: transform 0.3s ease;
+    font-family: var(--font-sans);
+    scrollbar-width: thin; scrollbar-color: var(--green-700) var(--green-900);
+    border-right: 1px solid rgba(50,240,140,0.10);
+  }
+  #sidebar::-webkit-scrollbar { width: 5px; }
+  #sidebar::-webkit-scrollbar-thumb { background: var(--green-700); }
+  #sidebar::-webkit-scrollbar-track { background: var(--green-900); }
+  .sidebar-header { padding: 30px 24px 20px; border-bottom: 1px solid rgba(246,244,236,0.20); }
+  .sidebar-header h1 { font-family: var(--font-serif); font-size: 1.2rem; color: #f6f4ec; font-weight: 900; letter-spacing: 0.1em; }
+  .sidebar-header .subtitle { font-size: 0.72rem; color: rgba(246,244,236,0.72); margin-top: 8px; letter-spacing: 0.16em; }
+  .sidebar-header .version { font-size: 0.66rem; color: rgba(246,244,236,0.58); margin-top: 14px; padding-top: 12px; border-top: 1px solid rgba(246,244,236,0.16); letter-spacing: 0.06em; line-height: 1.7; }
+
+  /* 侧栏顶部个人品牌徽章（参考 WorkBuddy 绿皮书「宁的 AI 小站」） */
+  .sidebar-brand {
+    display: block; margin-bottom: 16px; padding: 6px 10px;
+    background: #f6f4ec; border-radius: 10px;
+    transition: transform 0.15s, box-shadow 0.15s;
+  }
+  .sidebar-brand:hover { transform: translateY(-1px); box-shadow: 0 6px 18px rgba(0,0,0,0.28); }
+  .sidebar-brand img { display: block; width: 100%; height: auto; }
+  .toc { padding: 8px 0 30px; }
+  .toc-item a {
+    display: block; padding: 6px 22px 6px 30px; color: rgba(246,244,236,0.82);
+    text-decoration: none; font-size: 0.8rem; border-left: 2px solid transparent;
+    transition: background 0.15s, color 0.15s; line-height: 1.5;
+  }
+  .toc-item a:hover { background: rgba(50,240,140,0.08); color: #fff; }
+  .toc-item a.active { background: rgba(50,240,140,0.14); color: #fff; border-left-color: var(--brand); }
+  .toc-item .toc-num { display: inline-block; width: 32px; color: rgba(50,240,140,0.65); font-size: 0.72rem; font-variant-numeric: tabular-nums; }
+  .toc-part { padding: 18px 24px 6px; font-size: 0.64rem; letter-spacing: 0.2em; color: rgba(50,240,140,0.75); font-weight: 600; }
+
+  #main { margin-left: var(--sidebar-w); }
+  .content-wrap { max-width: 780px; margin: 0 auto; padding: 56px 48px 140px; }
+
+  .cover {
+    min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center;
+    background: linear-gradient(160deg, #10271d 0%, #0a1c14 55%, #07130e 100%);
+    color: #f6f4ec; text-align: center; padding: 72px 40px; position: relative;
+  }
+  .cover::before { content: ''; position: absolute; inset: 26px; border: 1px solid rgba(246,244,236,0.3); pointer-events: none; }
+  .cover::after { content: ''; position: absolute; inset: 33px; border: 1px solid rgba(246,244,236,0.14); pointer-events: none; }
+  .cover-content { position: relative; z-index: 1; max-width: 640px; }
+  .cover .badge {
+    display: inline-block; font-family: var(--font-sans); font-size: 0.68rem; letter-spacing: 0.34em;
+    color: rgba(246,244,236,0.75); border-top: 1px solid rgba(246,244,236,0.4);
+    border-bottom: 1px solid rgba(246,244,236,0.4); padding: 9px 6px; margin-bottom: 44px;
+  }
+  .cover h1 { font-family: var(--font-serif); font-size: clamp(2.6rem, 6vw, 3.9rem); font-weight: 900; letter-spacing: 0.05em; line-height: 1.2; }
+  .cover h1 .green { color: var(--brand); white-space: nowrap; }
+  .cover .tagline { font-size: 1.02rem; color: rgba(246,244,236,0.88); margin-top: 20px; letter-spacing: 0.14em; }
+  .cover .desc { font-size: 0.9rem; color: rgba(246,244,236,0.78); max-width: 560px; line-height: 2.05; margin: 34px auto 0; text-align: center; }
+  .cover .meta { margin-top: 52px; display: flex; justify-content: center; font-size: 0.74rem; color: rgba(246,244,236,0.72); border-top: 1px solid rgba(246,244,236,0.30); padding-top: 24px; font-family: var(--font-sans); }
+  .cover .meta span { display: flex; flex-direction: column; align-items: center; gap: 7px; padding: 0 30px; }
+  .cover .meta span + span { border-left: 1px solid rgba(246,244,236,0.18); }
+  .cover .meta strong { font-family: var(--font-serif); font-size: 1.65rem; color: #f6f4ec; font-weight: 900; }
+  .cover .scroll-hint { position: absolute; bottom: 42px; left: 50%; transform: translateX(-50%); font-family: var(--font-sans); font-size: 0.68rem; letter-spacing: 0.24em; color: rgba(246,244,236,0.42); }
+
+  /* 封面右下角吉祥物（参考 WorkBuddy 绿皮书） */
+  .cover-mascot {
+    position: absolute; right: 5%; bottom: 7%; width: 210px; z-index: 1;
+    border-radius: 18px; overflow: hidden;
+    background: #ffffff;
+    border: 1px solid rgba(50,240,140,0.25);
+    box-shadow: 0 20px 50px rgba(0,0,0,0.55), 0 0 0 6px rgba(255,255,255,0.04);
+  }
+  .cover-mascot img { display: block; width: 100%; height: auto; }
+  @media (max-width: 600px) { .cover-mascot { width: 140px; right: 5%; bottom: 7%; } }
+
+  /* 书末关注公众号卡片 */
+  .follow-card {
+    margin: 56px auto 0; max-width: 640px; border-radius: 22px; padding: 38px 40px;
+    background: linear-gradient(135deg, #0f3d29 0%, #0a2a1d 100%);
+    color: #f6f4ec; display: flex; align-items: center; gap: 32px;
+    box-shadow: 0 18px 48px rgba(15,61,41,0.28); break-inside: avoid;
+  }
+  .follow-card .fc-text { flex: 1; }
+  .follow-card .fc-title { font-family: var(--font-serif); font-size: 1.5rem; font-weight: 900; letter-spacing: 0.04em; margin-bottom: 12px; }
+  .follow-card .fc-desc { font-family: var(--font-sans); font-size: 0.86rem; line-height: 1.9; color: rgba(246,244,236,0.82); margin-bottom: 18px; }
+  .follow-card .fc-pill {
+    display: inline-block; margin: 4px 8px 4px 0; padding: 8px 18px; border-radius: 999px;
+    border: 1px solid rgba(50,240,140,0.45); color: #dfffee;
+    font-family: var(--font-sans); font-size: 0.78rem; letter-spacing: 0.04em;
+  }
+  .follow-card .fc-qr { flex: 0 0 148px; width: 148px; height: 148px; background: #fff; border-radius: 14px; padding: 8px; box-shadow: 0 6px 20px rgba(0,0,0,0.25); }
+  .follow-card .fc-qr img { width: 100%; height: 100%; display: block; object-fit: contain; border-radius: 8px; }
+  @media (max-width: 600px) {
+    .follow-card { flex-direction: column; text-align: center; padding: 30px 24px; }
+    .follow-card .fc-pill { display: block; }
+  }
+  @media print { .cover-mascot { display: none !important; } }
+
+  .chapter { margin-bottom: 76px; scroll-margin-top: 24px; }
+  .chapter-header { position: relative; margin-bottom: 32px; padding-bottom: 22px; border-bottom: 1px solid var(--hairline); }
+  .chapter-header::after { content: ''; position: absolute; bottom: -2px; left: 0; width: 68px; height: 3px; background: var(--brand); }
+  .chapter-num { font-family: var(--font-sans); font-size: 0.72rem; font-weight: 600; color: var(--green-700); letter-spacing: 0.3em; text-transform: uppercase; margin-bottom: 10px; }
+  .chapter-title { font-family: var(--font-serif); font-size: 1.62rem; font-weight: 900; color: var(--ink); line-height: 1.35; letter-spacing: 0.02em; }
+  .chapter-subtitle { font-size: 0.88rem; color: var(--ink-mute); margin-top: 10px; }
+
+  h3 { font-family: var(--font-serif); font-size: 1.16rem; color: var(--ink); margin: 38px 0 14px; font-weight: 700; }
+  h4 { font-family: var(--font-serif); font-size: 1rem; color: var(--ink); margin: 26px 0 10px; font-weight: 700; }
+  p { margin-bottom: 15px; font-size: 1rem; text-align: justify; text-justify: inter-ideograph; }
+  strong { font-weight: 700; color: inherit; }
+  a { color: var(--green-700); text-decoration: underline; text-decoration-color: var(--green-200); text-underline-offset: 3px; }
+  ul, ol { margin: 12px 0 18px 26px; }
+  li { margin-bottom: 7px; }
+  li::marker { color: var(--green-700); }
+  blockquote { margin: 20px 0; padding: 4px 0 4px 20px; border-left: 2px solid var(--green-700); color: var(--ink-soft); font-size: 0.95rem; }
+
+  table { width: 100%; border-collapse: collapse; margin: 24px 0; font-size: 0.88rem; font-variant-numeric: tabular-nums; border-top: 2px solid var(--ink); border-bottom: 2px solid var(--ink); }
+  thead th { font-family: var(--font-sans); font-size: 0.76rem; font-weight: 600; letter-spacing: 0.08em; text-align: left; padding: 10px 12px; border-bottom: 1px solid var(--ink); color: var(--ink); background: none; }
+  tbody td { padding: 9px 12px; border-bottom: 1px solid var(--hairline); vertical-align: top; }
+  tbody tr:last-child td { border-bottom: none; }
+
+  pre {
+    background: var(--paper-raised); border: 1px solid var(--hairline); border-left: 3px solid var(--green-700);
+    color: var(--ink); padding: 16px 18px; margin: 20px 0; font-size: 0.82rem; line-height: 1.65;
+    font-family: var(--font-mono); overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;
+  }
+  pre::before {
+    content: attr(data-label); display: block; font-family: var(--font-sans); font-size: 0.66rem;
+    letter-spacing: 0.16em; text-transform: uppercase; color: var(--ink-mute);
+    margin-bottom: 10px; padding-bottom: 8px; border-bottom: 1px solid var(--hairline);
+  }
+  pre:not([data-label])::before { display: none; }
+  code { font-family: var(--font-mono); font-size: 0.85em; }
+  p code, li code, td code { background: #efece1; color: var(--ink); padding: 1px 5px; border: 1px solid var(--hairline); border-radius: 2px; }
+
+  .callout { margin: 22px 0; padding: 14px 0; font-size: 0.92rem; border-top: 1px solid var(--hairline); border-bottom: 1px solid var(--hairline); }
+  .callout p { text-align: left; }
+  .callout-title { display: block; font-family: var(--font-sans); font-weight: 600; font-size: 0.78rem; letter-spacing: 0.1em; margin-bottom: 8px; color: var(--ink); }
+  .callout-title::before { content: "提示　"; color: var(--green-700); }
+  .callout.warn .callout-title::before { content: "注意　"; color: var(--gold); }
+  .callout.danger .callout-title::before { content: "重要　"; color: var(--rust); }
+  .callout.info .callout-title::before { content: "说明　"; color: var(--green-700); }
+  .card-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 0; margin: 22px 0; border-top: 1px solid var(--hairline); border-left: 1px solid var(--hairline); }
+  .card { padding: 16px 18px; border-right: 1px solid var(--hairline); border-bottom: 1px solid var(--hairline); }
+  .card h4 { margin: 0 0 6px; font-size: 0.95rem; font-weight: 700; }
+  .card p { font-size: 0.84rem; color: var(--ink-soft); margin: 0; line-height: 1.7; text-align: left; }
+
+  .timeline { border-left: 1px solid var(--hairline); margin: 22px 0 22px 6px; padding-left: 26px; }
+  .timeline-item { position: relative; margin-bottom: 16px; }
+  .timeline-item::before { content: ''; position: absolute; left: -30px; top: 0.62em; width: 7px; height: 7px; background: var(--green-700); }
+  .timeline-item h4 { margin: 0 0 4px; }
+  .timeline-item p { margin: 0; font-size: 0.88rem; color: var(--ink-soft); text-align: left; }
+
+  .compare-box { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; margin: 20px 0; }
+  .compare-item { font-size: 0.9rem; padding-bottom: 14px; border-bottom: 1px solid var(--hairline); }
+  .compare-item h4 { font-family: var(--font-sans); font-size: 0.8rem; font-weight: 600; letter-spacing: 0.1em; margin: 0 0 10px; padding-bottom: 8px; border-bottom: 2px solid; }
+  .compare-item.bad h4 { color: var(--rust); border-color: var(--rust); }
+  .compare-item.good h4 { color: var(--green-700); border-color: var(--green-700); }
+  .compare-item p, .compare-item li { text-align: left; }
+
+  .badge-tag { font-family: var(--font-sans); font-size: 0.7rem; font-weight: 600; letter-spacing: 0.12em; color: var(--green-700); margin-right: 8px; }
+  .badge-tag::before { content: "［"; color: var(--ink-mute); }
+  .badge-tag::after { content: "］"; color: var(--ink-mute); }
+
+  .progress-bar { position: fixed; top: 0; left: var(--sidebar-w); width: calc(100% - var(--sidebar-w)); height: 2px; background: transparent; z-index: 99; }
+  .progress-fill { height: 100%; background: var(--brand); width: 0; }
+  #sidebar-toggle { display: none; position: fixed; top: 14px; left: 14px; z-index: 101; background: var(--green-900); color: #f6f4ec; border: none; padding: 8px 14px; font-family: var(--font-sans); font-size: 0.78rem; letter-spacing: 0.12em; cursor: pointer; }
+  .print-btn { position: fixed; top: 14px; right: 16px; z-index: 999; background: var(--green-900); color: #f6f4ec; border: none; padding: 9px 18px; font-family: var(--font-sans); font-size: 0.76rem; letter-spacing: 0.1em; cursor: pointer; }
+  .print-btn:hover { background: #14201a; }
+
+  .book-footer { text-align: center; padding: 48px 40px; color: var(--ink-mute); font-size: 0.8rem; border-top: 1px solid var(--hairline); margin-top: 70px; font-family: var(--font-sans); line-height: 2; }
+  .page-tag { font-family: var(--font-sans); font-size: 0.68rem; color: var(--green-700); letter-spacing: 0.14em; }
+
+  .copyright-inner { max-width: 620px; margin: 24px auto 0; }
+  .copyright-title { font-family: var(--font-serif); font-size: 1.6rem; font-weight: 900; color: var(--ink); }
+  .copyright-sub { color: var(--ink-mute); margin: 10px 0 30px; font-size: 0.9rem; }
+  .copyright-block { border-top: 1px solid var(--hairline); padding: 18px 0; }
+  .copyright-block p { font-size: 0.88rem; text-align: left; }
+  .cb-h { font-family: var(--font-sans); font-weight: 600; font-size: 0.78rem; letter-spacing: 0.14em; color: var(--green-700); margin-bottom: 10px; }
+  .copyright-sign { text-align: right !important; color: var(--ink-mute); }
+
+  .part-break { page-break-before: always; page-break-after: always; break-inside: avoid; text-align: center; padding: 15vh 0; }
+  .part-break::before { content: attr(data-part); display: block; font-family: var(--font-serif); font-size: 1.7rem; font-weight: 900; letter-spacing: 0.3em; color: var(--ink); }
+  .part-break::after { content: "TRAEWORK GREEN BOOK"; display: block; margin-top: 20px; font-family: var(--font-sans); font-size: 0.66rem; letter-spacing: 0.52em; color: var(--ink-mute); }
+
+  #page-footer { display: none; }
+
+  figure.fig {
+    margin: 28px 0; break-inside: avoid; text-align: center;
+    display: flex; flex-direction: column; align-items: center;
+  }
+  figure.fig img {
+    width: 100%; max-width: 680px; height: 360px; object-fit: contain;
+    background: #fff; border: 1px solid var(--hairline); padding: 10px;
+  }
+  figure.fig figcaption { counter-increment: fig; margin-top: 12px; text-align: center; font-family: var(--font-sans); font-size: 0.8rem; color: var(--ink-mute); line-height: 1.7; max-width: 680px; }
+  figure.fig figcaption::before { content: "图 " counter(fig) "　"; font-weight: 600; color: var(--green-700); }
+  .source-tag { display: block; margin-top: 4px; font-size: 0.7rem; color: var(--ink-mute); letter-spacing: 0.06em; }
+  .source-tag::before { content: "来源："; }
+  .gallery-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 18px; margin: 24px 0; align-items: start; }
+  .gallery-grid figure.fig { margin: 0; }
+  .gallery-grid figure.fig img {
+    width: 100%; max-width: none; height: 220px; object-fit: contain;
+    background: #fff; border: 1px solid var(--hairline); padding: 8px;
+  }
+  .gallery-grid.two { grid-template-columns: 1fr 1fr; }
+  .gallery-grid.two figure.fig img { height: 320px; }
+  @media (max-width: 760px) {
+    .gallery-grid, .gallery-grid.two { grid-template-columns: 1fr; }
+    .gallery-grid figure.fig img, .gallery-grid.two figure.fig img { height: 300px; }
+  }
+
+  .reason-num {
+    display: inline-block; font-family: var(--font-serif); font-size: 2.2rem; font-weight: 900;
+    color: var(--green-700); line-height: 1; margin-right: 12px; vertical-align: -2px;
+  }
+
+  .qna { margin: 18px 0; padding: 14px 0; border-top: 1px solid var(--hairline); }
+  .qna .q { font-weight: 700; color: var(--ink); margin-bottom: 6px; }
+  .qna .q::before { content: "Q　"; color: var(--green-700); font-family: var(--font-sans); }
+  .qna .a { color: var(--ink-soft); font-size: 0.94rem; }
+  .qna .a::before { content: "A　"; color: var(--green-700); font-family: var(--font-sans); font-weight: 600; }
+  .checklist { list-style: none; margin-left: 0; }
+  .checklist li { padding-left: 26px; position: relative; }
+  .checklist li::before { content: "☐"; position: absolute; left: 0; color: var(--green-700); font-family: var(--font-sans); }
+  .checklist li::marker { content: ""; }
+
+  @media (max-width: 900px) {
+    #sidebar { transform: translateX(-100%); }
+    #sidebar.open { transform: translateX(0); }
+    #sidebar-toggle { display: block; }
+    .progress-bar { left: 0; width: 100%; }
+    .content-wrap { padding: 28px 22px 90px; }
+    .compare-box { grid-template-columns: 1fr; }
+    .card-grid { grid-template-columns: 1fr; }
+    .cover .meta { flex-direction: column; gap: 14px; }
+    .cover .meta span + span { border-left: none; }
+  }
+
+  @media print {
+    @page { size: A4; margin: 22mm 18mm 24mm 18mm; }
+    html, body { background: #fff !important; }
+    #sidebar, .progress-bar, #sidebar-toggle, .cover .scroll-hint, .noprint { display: none !important; }
+    #main { margin-left: 0 !important; width: 100% !important; }
+    .content-wrap { max-width: 100% !important; padding: 0 !important; }
+    .cover { page-break-after: always; }
+    .chapter { page-break-before: always; page-break-after: always; }
+    .part-break { page-break-before: always; page-break-after: always; padding: 38vh 0; }
+    pre, table, .card, .card-grid, .compare-box, blockquote,
+    .callout, figure, .timeline, .meta, .chapter-header, .qna { break-inside: avoid; }
+    p, li { widows: 3; orphans: 3; }
+    pre { white-space: pre-wrap; word-wrap: break-word; font-size: 8pt; line-height: 1.55; }
+    table { font-size: 8.5pt; }
+    figure.fig img { height: 340px; max-width: 100%; padding: 6px; }
+    .gallery-grid figure.fig img, .gallery-grid.two figure.fig img { height: 200px; padding: 5px; }
+    h1, h2, h3, h4 { break-after: avoid; }
+    * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    a { color: var(--green-800); }
+    #page-footer { display: block; position: fixed; bottom: 0; left: 18mm; right: 18mm; font-family: var(--font-sans); font-size: 8pt; color: #9a988c; border-top: 0.5pt solid #c8c4b8; padding-top: 6px; }
+    #page-footer .pf-left { float: left; }
+    #page-footer .pf-right { float: right; }
+    #page-footer::before { content: "TraeWork 绿皮书"; display: block; float: left; }
+    #page-footer::after { content: "第 " counter(page) " 页"; display: block; float: right; }
+  }
+</style>
+</head>
+<body>
+
+<div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+<button id="sidebar-toggle" onclick="document.getElementById('sidebar').classList.toggle('open')">目录</button>
+<div id="page-footer"></div>
+<button class="print-btn noprint" onclick="window.print()">打印 / 导出 PDF</button>
+
+<nav id="sidebar">
+  <div class="sidebar-header">
+    <a class="sidebar-brand" href="#follow" title="公众号「宁的 AI 小站」">
+      <img src="assets/brand-logo.png" alt="宁的 AI 小站">
+    </a>
+    <h1>TraeWork 绿皮书</h1>
+    <div class="subtitle">从入门到精通 · 官方知识库整理版</div>
+    <div class="version">v1.0 · 2026.08 · 基于 TraeWork 官方知识库（bytedance.larkoffice.com/wiki/RxVXweukSi7JtIkhOKBcuSlbnfC）与 TRAE 公众号推文整理</div>
+  </div>
+  <div class="toc">
+    <div class="toc-part">▎序章</div>
+    <div class="toc-item"><a href="#cover"><span class="toc-num">00</span>封面</a></div>
+    <div class="toc-item"><a href="#copyright"><span class="toc-num">01</span>版权页</a></div>
+    <div class="toc-item"><a href="#pre"><span class="toc-num">02</span>关于本书与使用说明</a></div>
+
+    <div class="toc-part">▎第一部分：认识 TraeWork</div>
+    <div class="toc-item"><a href="#p1-1"><span class="toc-num">03</span>什么是 TraeWork</a></div>
+    <div class="toc-item"><a href="#p1-3"><span class="toc-num">04</span>TraeWork vs 普通 Chatbot</a></div>
+    <div class="toc-item"><a href="#p1-4"><span class="toc-num">05</span>三种模式：Work / Code / Design</a></div>
+
+    <div class="toc-part">▎第二部分：界面与入门</div>
+    <div class="toc-item"><a href="#p2-1"><span class="toc-num">06</span>三栏界面布局</a></div>
+    <div class="toc-item"><a href="#p2-2"><span class="toc-num">07</span>云端任务 vs 本地任务</a></div>
+    <div class="toc-item"><a href="#p2-3"><span class="toc-num">08</span>第一个任务上手练习</a></div>
+    <div class="toc-item"><a href="#p2-4"><span class="toc-num">09</span>8 个入门技巧</a></div>
+
+    <div class="toc-part">▎第三部分：选择 TraeWork 的 20 个理由</div>
+    <div class="toc-item"><a href="#p3-1"><span class="toc-num">10</span>使用门槛：打开即用</a></div>
+    <div class="toc-item"><a href="#p3-2"><span class="toc-num">11</span>产品体验：过程可控</a></div>
+    <div class="toc-item"><a href="#p3-3"><span class="toc-num">12</span>能力支持：模型与创作</a></div>
+    <div class="toc-item"><a href="#p3-4"><span class="toc-num">13</span>本土化生态</a></div>
+    <div class="toc-item"><a href="#p3-5"><span class="toc-num">14</span>复用与自动化</a></div>
+    <div class="toc-item"><a href="#p3-6"><span class="toc-num">15</span>安全兜底</a></div>
+
+    <div class="toc-part">▎第四部分：核心能力详解</div>
+    <div class="toc-item"><a href="#p4-1"><span class="toc-num">16</span>Skill 技能系统</a></div>
+    <div class="toc-item"><a href="#p4-2"><span class="toc-num">17</span>Rules & Memory 规则与记忆</a></div>
+    <div class="toc-item"><a href="#p4-3"><span class="toc-num">18</span>MCP 工具与插件市场</a></div>
+    <div class="toc-item"><a href="#p4-4"><span class="toc-num">19</span>自动化任务</a></div>
+    <div class="toc-item"><a href="#p4-5"><span class="toc-num">20</span>多模型与多模态创作</a></div>
+    <div class="toc-item"><a href="#p4-6"><span class="toc-num">21</span>浏览器控制</a></div>
+    <div class="toc-item"><a href="#p4-7"><span class="toc-num">22</span>模板库与项目文件夹</a></div>
+    <div class="toc-item"><a href="#p4-8"><span class="toc-num">23</span>三端协同与语音讨论</a></div>
+
+    <div class="toc-part">▎第五部分：100+ 真实用法</div>
+    <div class="toc-item"><a href="#p5-1"><span class="toc-num">24</span>12 大场景分类总览</a></div>
+    <div class="toc-item"><a href="#p5-2"><span class="toc-num">25</span>按人群推荐阅读路径</a></div>
+
+    <div class="toc-part">▎第六部分：社区与生态</div>
+    <div class="toc-item"><a href="#p6-1"><span class="toc-num">26</span>官方社区与交流群</a></div>
+    <div class="toc-item"><a href="#p6-2"><span class="toc-num">27</span>活动、直播与 Specialist 招募</a></div>
+    <div class="toc-item"><a href="#p6-3"><span class="toc-num">28</span>全平台官方账号矩阵</a></div>
+
+    <div class="toc-part">▎第七部分：最新动态 ·「我的文件」上线</div>
+    <div class="toc-item"><a href="#p7-1"><span class="toc-num">29</span>我的文件：一个空间装下所有产物</a></div>
+    <div class="toc-item"><a href="#p7-2"><span class="toc-num">30</span>本周 13 场官方直播（8.10–8.16）</a></div>
+    <div class="toc-item"><a href="#p7-3"><span class="toc-num">31</span>知识库上线 · 社区学习活动回顾</a></div>
+    <div class="toc-item"><a href="#p7-4"><span class="toc-num">32</span>TRAE Friends 城市活动（8–9 月排期）</a></div>
+    <div class="toc-item"><a href="#p7-5"><span class="toc-num">33</span>「TraeWork 的 1000 种用法」有奖征集</a></div>
+    <div class="toc-item"><a href="#p7-6"><span class="toc-num">34</span>创造力大赛：你出难题，现场开造</a></div>
+    <div class="toc-item"><a href="#p7-7"><span class="toc-num">35</span>本周社区之星评选上线</a></div>
+    <div class="toc-item"><a href="#p7-8"><span class="toc-num">36</span>本周 10 场官方直播（8.17–8.22）</a></div>
+
+    <div class="toc-part">▎附录</div>
+    <div class="toc-item"><a href="#app-a"><span class="toc-num">A1</span>常用链接与资源</a></div>
+    <div class="toc-item"><a href="#app-b"><span class="toc-num">A2</span>常见问题 FAQ</a></div>
+    <div class="toc-item"><a href="#app-c"><span class="toc-num">A3</span>内容来源与致谢</a></div>
+  </div>
+</nav>
+
+<main id="main">
+<div class="content-wrap">
+
+<!-- ========== Cover ========== -->
+<section class="cover" id="cover">
+  <div class="cover-content">
+    <div class="badge">BYTEDANCE TRAEWORK · 官方知识库 · 字节跳动出品</div>
+    <h1>TraeWork <span class="green">绿皮书</span></h1>
+    <div class="tagline">AI 原生工作台 · 把工作目标交给 AI 推进</div>
+    <p class="desc">
+      一本覆盖新手入门到进阶实战的 TraeWork 完全指南。<br>
+      内容整理自 TraeWork 官方知识库（飞书 Wiki）与 TRAE 微信公众号推文，包含产品定位、界面入门、三种模式、20 个核心理由、8 个入门技巧、核心能力（Skill/MCP/自动化/规则记忆/多模态/浏览器控制）、100+ 真实用法分类与最新「我的文件」功能解读。<br>
+      无论你是开发者、职场人还是学生，都能在这里找到把 AI 真正用进工作的方法。
+    </p>
+    <div class="meta">
+      <span><strong>7</strong>大部分</span>
+      <span><strong>30</strong>章节</span>
+      <span><strong>100+</strong>真实用法</span>
+    </div>
+  </div>
+  <div class="cover-mascot" aria-hidden="true">
+    <img src="assets/mascot.png" alt="宁的 AI 小站 · GoodTime">
+  </div>
+  <div class="scroll-hint">向下滚动开始阅读</div>
+</section>
+
+<!-- ========== 版权页 ========== -->
+<section class="chapter copyright" id="copyright">
+  <div class="copyright-inner">
+    <h2 class="copyright-title">TraeWork 绿皮书</h2>
+    <p class="copyright-sub">AI 原生工作台 · 从入门到精通完全指南</p>
+
+    <div class="copyright-block">
+      <p><strong>整理</strong>　GoodTime（公众号「宁的 AI 小站」）· 绿皮书编写组（基于 TraeWork 官方知识库与 TRAE 公众号公开资料整理）</p>
+      <p><strong>版本</strong>　v1.0 · 2026 年 8 月</p>
+      <p><strong>篇幅</strong>　7 大部分 · 30 章 · 3 附录</p>
+    </div>
+
+    <div class="copyright-block">
+      <p class="cb-h">版权与免责声明</p>
+      <p>本书为面向 TraeWork 用户的学习型手册，内容综合自 TraeWork 官方知识库（bytedance.larkoffice.com/wiki/RxVXweukSi7JtIkhOKBcuSlbnfC）、TRAE 微信公众号推文及 TraeWork 社区公开资料。</p>
+      <p>TraeWork、TRAE、TRAE IDE 及其相关名称、标识、界面与功能描述归字节跳动所有。本书与字节跳动无官方隶属关系，书中观点仅代表整理者，不构成任何承诺。</p>
+      <p>AI 产品迭代迅速，<strong>功能、定价、权益以 TraeWork 官网（trae.cn）实时信息为准</strong>。本书内容由 AI 辅助整理，关键操作请自行核对。</p>
+      <p>未经书面许可，不得以任何形式复制、摘编本书主体内容用于商业用途；个人学习、内部传阅不受限。</p>
+    </div>
+
+    <div class="copyright-block">
+      <p class="cb-h">致谢</p>
+      <p>感谢字节跳动 TraeWork 团队持续打磨这款"能真正把任务完成"的 AI 原生工作台；感谢在官方社区、知识库和公众号分享实战经验的每一位用户与创作者。</p>
+      <p class="copyright-sign">—— GoodTime · 公众号「宁的 AI 小站」 · TraeWork 绿皮书编写组</p>
+    </div>
+  </div>
+</section>
+
+<!-- ========== 序章 ========== -->
+<section class="chapter" id="pre">
+  <div class="chapter-header">
+    <div class="chapter-num">序章 · PREFACE</div>
+    <h2 class="chapter-title">关于本书与使用说明</h2>
+    <div class="chapter-subtitle">写给每一位想把 AI 真正用进工作的人</div>
+  </div>
+
+  <p><strong>TraeWork</strong> 是字节跳动面向开发者、职场人与学生推出的专业 AI 办公平台，侧重学习、办公与工程执行场景——无论你是开发者、职场人还是学生，都可以用它写方案、做分析、处理文件、推进协作，并完成需要持续执行、检查和产出结果的自动化任务。</p>
+
+  <p>这本<strong>绿皮书</strong>的内容全部来自 TraeWork 官方知识库与 TRAE 公众号，按照"认识 → 入门 → 核心理由 → 核心能力 → 真实用法 → 生态 → 最新动态"的顺序组织，既是新用户的上手指南，也是老用户查阅能力的速查手册。</p>
+
+  <div class="card-grid">
+    <div class="card"><h4>新手友好</h4><p>从三栏界面到第一个任务，跟着做五分钟跑通，不预设任何技术背景</p></div>
+    <div class="card"><h4>官方权威</h4><p>内容全部取自 TraeWork 官方知识库与公众号，产品定义、能力描述均为官方口径</p></div>
+    <div class="card"><h4>场景导向</h4><p>100+ 真实用法按 12 大场景分类，按人群给出阅读路径，直接对标你的工作</p></div>
+    <div class="card"><h4>持续更新</h4><p>TraeWork 迭代很快，本书随官方知识库持续跟进最新功能</p></div>
+  </div>
+
+  <h3>本书结构</h3>
+  <table>
+    <thead><tr><th>部分</th><th>内容</th><th>适合谁</th></tr></thead>
+    <tbody>
+      <tr><td>第一部分 认识 TraeWork</td><td>产品定位、vs Chatbot、三种模式</td><td>所有人，尤其新用户</td></tr>
+      <tr><td>第二部分 界面与入门</td><td>三栏布局、云端/本地、第一个任务、8 个入门技巧</td><td>刚注册的新用户</td></tr>
+      <tr><td>第三部分 20 个理由</td><td>门槛、体验、能力、本土生态、复用自动化、安全六大维度</td><td>想了解产品差异化的人</td></tr>
+      <tr><td>第四部分 核心能力</td><td>Skill、Rules/Memory、MCP、自动化、多模态、浏览器控制、模板库、三端协同</td><td>想深入使用的用户</td></tr>
+      <tr><td>第五部分 100+ 用法</td><td>12 大场景分类、按人群推荐路径</td><td>找对标场景的人</td></tr>
+      <tr><td>第六部分 社区生态</td><td>社区、交流群、直播、Specialist 招募、官方账号矩阵</td><td>想融入社区的人</td></tr>
+      <tr><td>第七部分 最新动态</td><td>「我的文件」功能上线解读（来自公众号推文）</td><td>想追新的人</td></tr>
+    </tbody>
+  </table>
+
+  <div class="callout info">
+    <div class="callout-title">阅读建议</div>
+    <p><strong>新用户</strong>：从第一部分顺序阅读，跟着第二部分完成第一个任务。<br>
+    <strong>职场人</strong>：重点看第三部分（20 个理由）和第五部分（100+ 用法）。<br>
+    <strong>开发者/设计师</strong>：重点看第一种模式（Work/Code/Design）和第四部分核心能力。<br>
+    <strong>老用户</strong>：直接翻第七部分看最新动态，或查附录 A1 的资源链接。</p>
+  </div>
+</section>
+
+<!-- ========== 第一部分 ========== -->
+<div class="part-break" data-part="第一部分 认识 TraeWork"></div>
+
+<section class="chapter" id="p1-1">
+  <div class="chapter-header">
+    <div class="chapter-num">第一章 · 产品定位</div>
+    <h2 class="chapter-title">什么是 TraeWork</h2>
+    <div class="chapter-subtitle"><span class="badge-tag">入门</span> 一句话理解：把工作目标交给 AI 推进</div>
+  </div>
+
+  <p>TraeWork 是一款 <strong>AI 原生工作台</strong>。它提供<em>网页端、桌面端和移动端</em>三种形态，并围绕不同用户和任务场景提供 Work、Code、Design 三个模式。</p>
+
+  <blockquote>
+    <p><strong>一句话理解：</strong>TraeWork 可以把你的工作目标交给 AI 来推进。你只需要说明想完成什么，AI 会帮你拆解步骤、执行任务、生成结果，并根据你的反馈继续修改。</p>
+  </blockquote>
+
+  <h3>1.1 三端形态</h3>
+  <table>
+    <thead><tr><th>形态</th><th>适合场景</th><th>你可以怎么用</th></tr></thead>
+    <tbody>
+      <tr><td><strong>桌面端</strong></td><td>长期任务、复杂项目、本地文件或代码任务</td><td>支持文字、语音、附件、技能等输入，可在对话中查看进度、预览产物和验收结果</td></tr>
+      <tr><td><strong>移动端</strong></td><td>碎片化场景下发任务、查看进度、补充要求</td><td>在手机上发起任务、管理云端和已连接电脑中的任务，并与其他端同步</td></tr>
+      <tr><td><strong>网页端</strong></td><td>临时需求、快速验证、外出办公</td><td>打开网页即可使用云端环境，无需下载安装（中国版 work.trae.cn / 国际版 work.trae.ai）</td></tr>
+    </tbody>
+  </table>
+
+  <h3>1.2 它能帮你做什么</h3>
+  <div class="card-grid">
+    <div class="card"><h4>把目标变成产物</h4><p>从"我想做什么"出发，推进到文档、代码、报告、原型、网页等可交付结果</p></div>
+    <div class="card"><h4>把复杂步骤交给 AI</h4><p>AI 负责拆解步骤、读取上下文、调用工具、执行任务，你负责确认方向和验收</p></div>
+    <div class="card"><h4>把经验沉淀下来</h4><p>通过 Skill、规则、记忆、MCP 等能力，把一次性经验变成持续复用的资产</p></div>
+    <div class="card"><h4>让任务跨端接续</h4><p>同一个任务可在网页、桌面、移动端之间同步查看和继续推进</p></div>
+  </div>
+
+  <h3>1.3 常见任务类型</h3>
+  <table>
+    <thead><tr><th>任务类型</th><th>可以交给 TraeWork 做什么</th><th>适合模式</th></tr></thead>
+    <tbody>
+      <tr><td>文档与内容</td><td>整理资料、生成报告/PPT、改写文案、输出方案、制作结构化文档</td><td>Work</td></tr>
+      <tr><td>数据与分析</td><td>分析表格、提炼结论、生成日报/周报、整理指标变化和行动建议</td><td>Work</td></tr>
+      <tr><td>应用生成</td><td>生成 Web/App/小程序等应用，搭建运营工具、管理后台、平台系统</td><td>Work / Code</td></tr>
+      <tr><td>代码与工程</td><td>理解代码库、修复 Bug、补充测试、运行命令、处理 Git 工作流</td><td>Code</td></tr>
+      <tr><td>设计与原型</td><td>生成设计稿、导入设计资产、调整样式、预览设计、衔接到 Code 模式</td><td>Design</td></tr>
+      <tr><td>重复性工作</td><td>沉淀 Skill、连接 MCP、设置自动化任务，让重复流程稳定复用</td><td>按任务选择</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section class="chapter" id="p1-3">
+  <div class="chapter-header">
+    <div class="chapter-num">第二章 · 核心差异</div>
+    <h2 class="chapter-title">TraeWork vs 普通 Chatbot</h2>
+    <div class="chapter-subtitle"><span class="badge-tag">入门</span> Chatbot 回答你，TraeWork 和你一起把任务完成</div>
+  </div>
+
+  <p>很多人第一次接触 TraeWork，会以为它只是一个"更强的 AI 聊天框"。但它的价值远不止于此——和普通 Chatbot 不同，TraeWork 能接住任务、理解上下文、调用工具、产出文件，并在本地、云端和移动端之间持续推进工作。</p>
+
+  <table>
+    <thead><tr><th>对比维度</th><th>普通 Chatbot</th><th>TraeWork</th></tr></thead>
+    <tbody>
+      <tr><td><strong>核心交互</strong></td><td>以问答为主，回答建议或生成文本</td><td>以任务为中心，目标是把任务执行到可验收产物</td></tr>
+      <tr><td><strong>任务推进</strong></td><td>需要用户手动拆解和复制粘贴上下文</td><td>Agent 理解目标、拆解步骤、读写文件、调用工具并持续推进</td></tr>
+      <tr><td><strong>上下文能力</strong></td><td>更多依赖当次对话输入</td><td>支持项目上下文、全局记忆、文件、技能、MCP 等多种来源</td></tr>
+      <tr><td><strong>过程控制</strong></td><td>过程不可见，主要看到最终回复</td><td>执行过程透明，可查看进度、补充要求、纠偏和验收</td></tr>
+      <tr><td><strong>交付形式</strong></td><td>常见输出是文本答案</td><td>输出文档、PPT、图表、网页、代码变更、设计稿等多种产物</td></tr>
+      <tr><td><strong>能力扩展</strong></td><td>主要依赖模型本身</td><td>通过 Skill、MCP、记忆、规则等扩展能力边界</td></tr>
+    </tbody>
+  </table>
+
+  <blockquote>
+    <p>Chatbot 更擅长<strong>"回答你"</strong>；TraeWork 更强调<strong>"和你一起把任务完成"</strong>。</p>
+  </blockquote>
+</section>
+
+<section class="chapter" id="p1-4">
+  <div class="chapter-header">
+    <div class="chapter-num">第三章 · 三种模式</div>
+    <h2 class="chapter-title">Work / Code / Design</h2>
+    <div class="chapter-subtitle"><span class="badge-tag">入门</span> 写材料用 Work，看代码用 Code，做界面用 Design</div>
+  </div>
+
+  <p>TraeWork 顶部提供三种模式，分别对应办公协作、开发执行和设计创作场景，覆盖不同人群。狭义上一句话理解：<strong>Work 负责把事情想清楚，Design 负责把产品画出来，Code 负责把它真正做出来。</strong></p>
+
+  <table>
+    <thead><tr><th>模式</th><th>适合人群</th><th>典型任务</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Work</strong></td><td>产品经理、运营、数据分析师、市场、学生、职能等多角色人群</td><td>处理文档、数据、PPT、研究分析、内容生成、工作总结、生成并分享 HTML 页面</td></tr>
+      <tr><td><strong>Code</strong></td><td>习惯让 AI 主导开发的工程师和技术用户</td><td>编码、调试、理解代码库、处理 Git 工作流、修复 Bug、测试</td></tr>
+      <tr><td><strong>Design</strong></td><td>设计师、产品、前端、需要快速做视觉方案或原型的用户</td><td>生成设计稿、导入 Design Library、风格探索、预览编辑设计、导出到 Code 模式</td></tr>
+    </tbody>
+  </table>
+
+  <h3>4.1 Work 模式场景举例</h3>
+  <pre data-label="整理用户反馈">我上传了一批用户反馈，请帮我按功能问题、体验问题、内容建议、付费相关等类别整理，并提炼出一份需求清单。每条需求请包含：用户原话摘要、核心问题、影响范围、优先级建议。</pre>
+  <pre data-label="生成运营日报">请根据我上传的表格数据，生成一份运营日报。重点分析今日核心数据表现、环比变化、异常波动原因，并给出 3 条可执行的运营建议。语言简洁，适合发给团队同步。</pre>
+
+  <h3>4.2 Code 模式场景举例</h3>
+  <pre data-label="修复 Bug">登录时出现【具体问题/报错信息】，请帮我定位原因并修复。你可以先阅读相关代码，找到可能出问题的文件和逻辑，再给出修改方案并完成代码改动。修复后请说明问题原因、改了哪里，以及建议我如何验证。</pre>
+  <pre data-label="阅读项目结构">请帮我阅读这个项目的代码结构，梳理主要目录和关键模块的作用。重点说明项目入口、核心业务逻辑、数据流转方式、配置文件和测试位置。请用新同学也能看懂的方式解释。</pre>
+
+  <h3>4.3 Design 模式场景举例</h3>
+  <pre data-label="探索视觉方向">我想从 0 设计一个【产品/页面类型】。目标用户是【用户群体】，核心场景是【使用场景】。请先帮我探索 3 个不同的视觉方向，包括整体气质、配色、字体、布局风格和适合的组件形式。每个方向请说明适合什么场景，并给出可视化初稿。</pre>
+
+  <div class="callout tip">
+    <div class="callout-title">三句口诀选模式</div>
+    <p>写材料、做分析，用 <strong>Work</strong>；看代码、改项目，用 <strong>Code</strong>；做界面、出设计，用 <strong>Design</strong>。三个模式也可以灵活搭配——例如把 Design 模式生成的设计图直接导入 Code 模式，无缝衔接开发。</p>
+  </div>
+
+  <div class="gallery-grid three">
+    <figure class="fig"><img src="assets/whatis-01.png" alt="Work 模式界面" loading="lazy"><figcaption>Work 模式：写方案、做分析、整理文档的办公主界面</figcaption></figure>
+    <figure class="fig"><img src="assets/whatis-02.png" alt="Code 模式界面" loading="lazy"><figcaption>Code 模式：让 AI 主导读代码、改 Bug、跑测试</figcaption></figure>
+    <figure class="fig"><img src="assets/whatis-03.png" alt="Design 模式界面" loading="lazy"><figcaption>Design 模式：生成设计稿、探索视觉风格与原型</figcaption></figure>
+  </div>
+  <p class="source-tag" style="text-align:center;">TraeWork 官方知识库</p>
+</section>
+
+<!-- ========== 第二部分 ========== -->
+<div class="part-break" data-part="第二部分 界面与入门"></div>
+
+<section class="chapter" id="p2-1">
+  <div class="chapter-header">
+    <div class="chapter-num">第四章 · 界面布局</div>
+    <h2 class="chapter-title">三栏界面：左任务、中对话、右结果</h2>
+    <div class="chapter-subtitle"><span class="badge-tag">入门</span> 一句话记住整个界面</div>
+  </div>
+
+  <p>TraeWork 桌面端采用"左中右"三栏式布局：</p>
+  <ul>
+    <li><strong>左侧栏</strong>：新建、切换和管理任务，进入技能、自动化和账号设置</li>
+    <li><strong>中间区</strong>：输入需求、和 AI 对话，查看 AI 的计划与执行过程</li>
+    <li><strong>右侧栏</strong>：查看待办、任务产物和参考信息</li>
+  </ul>
+
+  <figure class="fig">
+    <img src="assets/r01-three-col.png" alt="TraeWork 三栏布局主界面" loading="lazy">
+    <figcaption>TraeWork 桌面端三栏式主界面：左侧任务控制台、中间对话区、右侧结果区。<span class="source-tag">TraeWork 官方知识库</span></figcaption>
+  </figure>
+
+  <h3>5.1 左侧栏：任务控制台</h3>
+  <table>
+    <thead><tr><th>元素</th><th>作用</th></tr></thead>
+    <tbody>
+      <tr><td>Work / Code / Design</td><td>切换不同工作模式</td></tr>
+      <tr><td>新建任务</td><td>创建一个新的空白任务</td></tr>
+      <tr><td>技能</td><td>进入技能市场，安装或管理技能</td></tr>
+      <tr><td>自动化</td><td>创建和管理定时自动执行的任务</td></tr>
+      <tr><td>任务列表</td><td>展示当前和历史任务，点击即可切换</td></tr>
+      <tr><td>头像 / 设置</td><td>语言、主题、设置、问题反馈、退出登录</td></tr>
+      <tr><td>移动端入口</td><td>扫码下载 TRAE 移动端，随时查看和推进任务</td></tr>
+    </tbody>
+  </table>
+  <p>设置中支持<strong>暗色、亮色和跟随系统</strong>三种主题切换。</p>
+
+  <h3>5.2 中间对话区：与 AI 协作</h3>
+  <table>
+    <thead><tr><th>元素</th><th>作用</th></tr></thead>
+    <tbody>
+      <tr><td>对话内容区</td><td>显示沟通过程、AI 的计划和执行状态</td></tr>
+      <tr><td>输入框</td><td>输入希望 TraeWork 完成的任务</td></tr>
+      <tr><td>附件上传</td><td>上传文件、图片或材料给 AI 处理</td></tr>
+      <tr><td>命令 / 技能调用</td><td>快速调用命令或技能（输入 <code>/</code> 唤起）</td></tr>
+      <tr><td>模型选择</td><td>选择本次任务使用的 AI 模型</td></tr>
+      <tr><td>语音入口</td><td>使用语音输入或语音讨论</td></tr>
+      <tr><td>云端 / 本地切换</td><td>选择任务在云端还是本地执行</td></tr>
+      <tr><td>模板选择</td><td>三种模式各自内置不同模板，一键做同款</td></tr>
+    </tbody>
+  </table>
+
+  <h3>5.3 右侧栏：看进度和结果</h3>
+  <table>
+    <thead><tr><th>元素</th><th>作用</th></tr></thead>
+    <tbody>
+      <tr><td>待办</td><td>显示 AI 拆解出来的步骤，知道它正在做什么</td></tr>
+      <tr><td>任务产物</td><td>展示生成的文件或结果：文档、表格、PPT、HTML 等</td></tr>
+      <tr><td>参考信息</td><td>展示 AI 执行任务时参考过的技能、网页、资料或搜索结果</td></tr>
+      <tr><td>手动压缩</td><td>Code 模式下点击可自动压缩上下文</td></tr>
+    </tbody>
+  </table>
+
+  <div class="gallery-grid two">
+    <figure class="fig"><img src="assets/ui-12.png" alt="中间对话区" loading="lazy"><figcaption>中间对话区：下指令、看 AI 的计划与执行过程</figcaption></figure>
+    <figure class="fig"><img src="assets/ui-23.png" alt="右侧任务产物" loading="lazy"><figcaption>右侧结果区：展示任务产物与核心观点</figcaption></figure>
+  </div>
+  <p class="source-tag" style="text-align:center;">TraeWork 官方知识库</p>
+
+  <div class="callout tip">
+    <div class="callout-title">使用提示</div>
+    <p>复杂任务执行时，不要只看中间对话区。<strong>右侧栏能帮你快速判断</strong> AI 正在做哪一步、最终产物在哪里、它参考了哪些资料。</p>
+  </div>
+</section>
+
+<section class="chapter" id="p2-2">
+  <div class="chapter-header">
+    <div class="chapter-num">第五章 · 执行环境</div>
+    <h2 class="chapter-title">云端任务 vs 本地任务</h2>
+    <div class="chapter-subtitle"><span class="badge-tag">入门</span> 选对环境，任务跑得更顺</div>
+  </div>
+
+  <table>
+    <thead><tr><th>环境</th><th>含义</th><th>适合场景</th></tr></thead>
+    <tbody>
+      <tr><td><strong>云端</strong></td><td>任务在远程环境中执行，<strong>不占用本机资源</strong></td><td>调研、写文档、生成内容、跨设备继续处理</td></tr>
+      <tr><td><strong>本地</strong></td><td>任务在你的电脑本地执行</td><td>需要访问本地文件、本地项目或本机环境的任务</td></tr>
+    </tbody>
+  </table>
+
+  <div class="callout tip">
+    <div class="callout-title">选择建议</div>
+    <p>只是写文档、做调研、整理内容，优先使用<strong>云端</strong>；任务需要读取或修改你电脑上的文件、项目，再考虑<strong>本地</strong>。</p>
+  </div>
+</section>
+
+<section class="chapter" id="p2-3">
+  <div class="chapter-header">
+    <div class="chapter-num">第六章 · 上手练习</div>
+    <h2 class="chapter-title">5 分钟完成第一个任务</h2>
+    <div class="chapter-subtitle"><span class="badge-tag">入门</span> 跟着做，立刻感受 TraeWork 与聊天框的区别</div>
+  </div>
+
+  <ol>
+    <li>打开 TraeWork 网页版：中国版访问 <a href="https://work.trae.cn/" target="_blank">work.trae.cn</a>，国际版访问 <a href="https://work.trae.ai/" target="_blank">work.trae.ai</a>（也可下载桌面端）</li>
+    <li>完成登录后，新建一个 <strong>Work 模式</strong>任务</li>
+    <li>输入一个简单任务：</li>
+  </ol>
+  <pre data-label="第一个任务">帮我整理一份 TraeWork 新用户上手清单，包含第一步做什么、第二步做什么、需要注意什么。</pre>
+  <ol start="4">
+    <li>观察 AI 是否展示执行过程，并查看最终产物是否可以继续追问或修改</li>
+    <li>如果你是开发或设计用户，再尝试切换到 Code 或 Design 模式，观察入口和任务提示有什么不同</li>
+  </ol>
+
+  <h3>界面打卡清单</h3>
+  <p>完成后，确认你已经找到了以下 8 个元素：</p>
+  <ul class="checklist">
+    <li>"新建任务"按钮</li>
+    <li>Work / Code / Design 模式切换</li>
+    <li>AI 输入框</li>
+    <li>附件上传入口</li>
+    <li>语音功能入口</li>
+    <li>切换本地 / 云端环境</li>
+    <li>右侧"任务产物"区域</li>
+    <li>配置 MCP 功能入口</li>
+  </ul>
+</section>
+
+<section class="chapter" id="p2-4">
+  <div class="chapter-header">
+    <div class="chapter-num">第七章 · 入门技巧</div>
+    <h2 class="chapter-title">8 个 TraeWork 入门技巧</h2>
+    <div class="chapter-subtitle"><span class="badge-tag">入门</span> 从"更聪明的聊天框"到"持续协作的工作伙伴"</div>
+  </div>
+
+  <p>用好 TraeWork 的关键，不只是收藏更多提示词，更多的是建立一套稳定的协作方式：如何发起任务、如何补充上下文、AI 执行过程中如何提前干预、重复工作如何释放人力。</p>
+
+  <h3><span class="reason-num">1</span>选择适合的产品模式</h3>
+  <p>不要把所有任务都塞在一个模式里。Work 关注业务目标和交付物，Code 关注仓库、依赖和代码质量，Design 关注布局、样式和体验细节。三个模式可灵活搭配——例如 Design 生成的设计图可直接导入 Code 无缝衔接开发。</p>
+
+  <h3><span class="reason-num">2</span>创建项目文件夹，补充上下文</h3>
+  <p>把与任务相关的资料统一放在一个文件夹中，在 TraeWork 里选择该文件夹再下达指令。比起不选文件夹，AI 找数据、放结果的效率和稳定性都会高很多。</p>
+  <pre data-label="示例">帮我分析这个文件夹里的评论，并整理成 Excel。</pre>
+
+  <h3><span class="reason-num">3</span>开发不着急，先用 Spec / Plan 规划</h3>
+  <p>Code 模式下，在对话框输入 <code>/</code> 可调用两个规划命令：</p>
+  <ul>
+    <li><strong>Plan 模式</strong>：适用于中小型功能开发和模块级重构，生成计划文档后直接执行</li>
+    <li><strong>Spec 模式</strong>：面向更复杂的系统级任务，生成完整的三阶段文档组（大纲 + 任务列表 + 验收清单），每阶段支持确认和 Refine</li>
+  </ul>
+  <pre data-label="Spec 示例">/spec 开发一款支持多语种学习的在线教育平台，涵盖英语、日语、韩语等主流语言……</pre>
+  <div class="gallery-grid two">
+    <figure class="fig"><img src="assets/tips-09.png" alt="Spec 与 Plan 模式" loading="lazy"><figcaption>对话框输入 <code>/</code> 唤起 Spec / Plan，先规划再执行</figcaption></figure>
+    <figure class="fig"><img src="assets/tips-11.png" alt="Spec 生成的文档组" loading="lazy"><figcaption>Spec 自动生成 prd.md、spec.md 等阶段文档，确认后再开发</figcaption></figure>
+  </div>
+  <p class="source-tag" style="text-align:center;">TraeWork 官方知识库</p>
+
+  <h3><span class="reason-num">4</span>语音功能，帮你理清思绪</h3>
+  <p>很多高价值需求一开始不是清晰的 Prompt，而是一段混乱的口述。直接用语音讨论，让 TraeWork 先帮你拆问题：用户是谁、核心场景、输入从哪来、输出给谁看、哪些信息必须有。如果对需求不够明确，可以让 AI 反向追问。</p>
+
+  <h3><span class="reason-num">5</span>用 Rules / Memory / Skill 沉淀标准工作流</h3>
+  <ul>
+    <li><strong>Rules</strong>：固定硬约束（技术栈、命名风格、测试要求、语气、禁用词、组件规范）</li>
+    <li><strong>Memory</strong>：保存长期偏好（先结论后依据、不标题党、改动必须说明风险）</li>
+    <li><strong>Skill</strong>：封装专业流程，定义场景、执行要求和步骤</li>
+  </ul>
+  <p>判断一件工作是否值得沉淀：是否高频重复？是否每次都要解释同一批要求？是否流程固定？是否经验可团队共享？满足其一即可从 Prompt 升级为规则、技能或命令。</p>
+
+  <h3><span class="reason-num">6</span>配置自动化工作流，减少重复工作</h3>
+  <p>凡是固定时间、固定逻辑、固定产物的工作，都应考虑自动化：日报、周报、竞品动态、代码仓库巡检、舆情摘要、数据异常提醒、待办汇总。先从小任务开始，确认输出稳定后再增加判断逻辑和分发动作。</p>
+  <pre data-label="示例">竞品监控可以先从「每周一上午汇总三个竞品官网和公开更新」开始，输出功能变化、市场动作、可能影响和建议跟进行动。</pre>
+
+  <h3><span class="reason-num">7</span>灵活配置自定义模型</h3>
+  <p>不想用内置模型或高峰期排队影响效率时，TraeWork 支持填入自己的模型服务商和 API Key 接入自定义模型。还支持<strong>自定义上下文窗口</strong>，处理长文档、大型仓库时可按需调大，不再受默认窗口限制。</p>
+
+  <h3><span class="reason-num">8</span>多端协同，移动端随时下发任务</h3>
+  <p>无论身在何处，都能通过移动版选择目标设备和工作路径，向远程环境下发任务。系统会自动启动智能体执行指令，并随时在手机上查看进度、获取结果：</p>
+  <ul>
+    <li><strong>下发任务</strong>：手机直接下发，实时查看进度、确认执行事项</li>
+    <li><strong>检查任务</strong>：不在电脑旁也能查看执行中任务的进度和产物</li>
+  </ul>
+</section>
+
+<!-- ========== 第三部分 ========== -->
+<div class="part-break" data-part="第三部分 选择 TraeWork 的 20 个理由"></div>
+
+<section class="chapter" id="p3-1">
+  <div class="chapter-header">
+    <div class="chapter-num">第八章 · 理由 1-4</div>
+    <h2 class="chapter-title">使用门槛：打开即用，无需学习成本</h2>
+    <div class="chapter-subtitle">决定用户去留的，从来不是"能力多全"，而是它是否更贴近真实工作</div>
+  </div>
+
+  <h3><span class="reason-num">1</span>三栏布局，清晰理解任务全流程</h3>
+  <p>桌面端采用"左中右"三栏式布局，一句话记住：<strong>左边管任务，中间管对话，右边管结果</strong>。左侧新建/切换/管理任务，中间输入需求并查看 AI 的计划与执行过程，右侧查看待办、产物和参考信息。每个环节都能被看清，轻松掌握任务进度。</p>
+
+  <h3><span class="reason-num">2</span>三种模式分工清晰，开箱即用</h3>
+  <p>Work、Code、Design 分别对应办公协作、开发执行和设计创作，覆盖不同人群。无需先理解功能入口再理解操作逻辑——不同任务进入不同模式，逻辑清晰、分工明确。历史用户反馈中，"设计好看、上手简单"是出现频率最高的评价之一。<strong>越简单的工具越容易坚持使用。</strong></p>
+
+  <h3><span class="reason-num">3</span>零代码基础，也能从"想法"走到"产品"</h3>
+  <p>只要你能清晰描述需求，AI 便会从零搭建、调试并部署一个可用产品——无论是签到小程序、个人作品集网站，还是运营数据看板。AI 自动拆解需求、生成代码、调试运行，全程不需要理解编程概念，配合一键部署，从想法到产品上线可在一次对话内完成。</p>
+  <blockquote>
+    <p>一位运营同学想做每日打卡工具。她在 Code 模式中描述"我要一个签到页面，能记录连续打卡天数"，几分钟后便拿到了一个可分享的线上页面，中间没有写过一行代码。</p>
+  </blockquote>
+
+  <h3><span class="reason-num">4</span>只需开口，模糊表达也能快速整理</h3>
+  <p>真实工作中很多任务一开始并不是清晰、完整、结构化的指令。TraeWork 的<strong>语音讨论</strong>功能让你直接开口描述想法，哪怕表达不够完整，AI 也能在对话中帮你梳理逻辑、提炼重点、补齐结构。不需要把需求整理好再用 AI，而是在和 AI 的互动中把事情逐步想清楚。<strong>会说话就能用 AI，语音是最自然的人机界面。</strong></p>
+  <figure class="fig">
+    <img src="assets/r04-voice.png" alt="TraeWork 语音对话功能" loading="lazy">
+    <figcaption>输入框旁的语音入口：按住说话即可开启语音讨论，让 AI 帮你把零散想法梳理成结构。<span class="source-tag">TraeWork 官方知识库</span></figcaption>
+  </figure>
+</section>
+
+<section class="chapter" id="p3-2">
+  <div class="chapter-header">
+    <div class="chapter-num">第九章 · 理由 5-9</div>
+    <h2 class="chapter-title">产品体验：全场景覆盖，过程可控</h2>
+    <div class="chapter-subtitle">AI 负责执行，你负责决策</div>
+  </div>
+
+  <h3><span class="reason-num">5</span>AI 操作过程透明，关键节点由你决策</h3>
+  <p>对 AI 工具的不信任往往源于"黑箱感"。TraeWork 在执行过程中持续给出清晰反馈，让你知道 Agent 当前在处理什么、进行到哪一步；到了关键节点不会默认替你做决定，而是提供多个选项让你确认后再继续。你可以随时中断、调整方向或要求重来。<strong>整个过程始终可见、可控、可干预。</strong></p>
+  <figure class="fig">
+    <img src="assets/r05-decision.png" alt="关键节点由用户决策" loading="lazy">
+    <figcaption>关键节点由你决策：AI 给出多个选项（移动端 App / Web / 小程序等），确认后才继续。<span class="source-tag">TraeWork 官方知识库</span></figcaption>
+  </figure>
+
+  <h3><span class="reason-num">6</span>实时预览修改，不止是"一篇草稿"</h3>
+  <p>TraeWork 强调结果的可用性：</p>
+  <ul>
+    <li><strong>自动生成 HTML 页面</strong>：HTML 可承载动画、交互、数据下钻、多终端适配，随内容持续更新，而非静态幻灯片</li>
+    <li><strong>HTML 实时编辑预览</strong>：拿到页面后可直接编辑修改和一键分享，作为汇报、方案、Demo、PRD 等工作的<strong>最终交付物</strong></li>
+  </ul>
+  <p><strong>不只是生成，而是更完整的交付物。</strong></p>
+
+  <h3><span class="reason-num">7</span>文件直接拖入，无需预处理</h3>
+  <p>支持 PDF、PPT、Excel、CSV、图片等全格式文件直接拖入，无需预处理或格式转换。面对几十万行数据的超大 Excel 也能稳定解析、不卡顿。</p>
+  <blockquote>
+    <p>直接上传凌乱的调研问卷原始数据，AI 自动识别结构、清洗数据、输出洞察报告；30 页格式混乱的 PDF 合同直接拖入，AI 逐页识别并提取关键条款，无需先转 Word。<strong>AI 适应工作材料，而不是为 AI 准备好材料。</strong></p>
+  </blockquote>
+
+  <h3><span class="reason-num">8</span>项目文件夹沉淀上下文，AI 自动取用</h3>
+  <p>把一个项目相关的资料、文档、数据统一上传到<strong>项目文件夹</strong>提前完成上下文沉淀。发起新任务时，AI 会根据描述自动定位相关文件并调用内容，无需手动重复上传或精确描述文件名/路径/版本。</p>
+  <blockquote>
+    <p>将项目需求文档、历史周报、竞品资料放入项目文件夹后，只需说"结合项目背景写一版本周进展"，AI 会自动找到并读取对应文件。<strong>上下文一次备好，AI 自动取用。</strong></p>
+  </blockquote>
+  <figure class="fig">
+    <img src="assets/r08-project-folder.png" alt="选择项目文件夹" loading="lazy">
+    <figcaption>输入框下方的"选择文件夹（可选）"：绑定项目文件夹后，AI 自动取用其中资料。<span class="source-tag">TraeWork 官方知识库</span></figcaption>
+  </figure>
+
+  <h3><span class="reason-num">9</span>三端协同更灵活，想法脱离设备</h3>
+  <p>工作不只发生在电脑前。TraeWork 覆盖<strong>移动端、网页端和桌面端</strong>，你可以在手机上快速发起任务、远程调度任务、跟进执行情况，也可以直接打开移动端语音讨论，让 AI 先整理初稿。<strong>工作不被设备限制，随时跟进任务。</strong></p>
+  <figure class="fig">
+    <img src="assets/r09-mobile.gif" alt="TraeWork 移动端任务管理" loading="lazy">
+    <figcaption>TraeWork 移动端：随时发起任务、筛选查看全部/云端/本地任务并跟进执行情况。<span class="source-tag">TraeWork 官方知识库</span></figcaption>
+  </figure>
+</section>
+
+<section class="chapter" id="p3-3">
+  <div class="chapter-header">
+    <div class="chapter-num">第十章 · 理由 10-13</div>
+    <h2 class="chapter-title">能力支持：模型领先，创作 + 模板全覆盖</h2>
+    <div class="chapter-subtitle">文字、图片、视频，一个工具覆盖完整内容生产</div>
+  </div>
+
+  <h3><span class="reason-num">10</span>多模型自由切换，国产最新模型可用</h3>
+  <p>模型升级的真正意义是"新能力能不能立刻在工作中用起来"。TraeWork 内置多款大模型，可根据任务类型自由选择，也支持配置自定义模型、使用你订阅的 CodingPlan。内置多款国内最新模型并持续更新。</p>
+
+  <h3><span class="reason-num">11</span>不止是文生图，还有文生视频</h3>
+  <p>TraeWork 内置集成 <strong>Seedream 文生图</strong>与 <strong>Seedance 文生视频</strong>，可在同一工作流内完成"文字撰写 + 配图生成 + 短视频制作"的完整链路。文生图支持插画、写实、扁平等多种风格；文生视频可从文案描述直接产出可用素材。</p>
+  <blockquote>
+    <p>筹备线下活动宣传方案，用 TraeWork 写完文案后，直接生成海报配图与 15 秒预热短视频，无需再打开其他设计或剪辑工具。</p>
+  </blockquote>
+
+  <h3><span class="reason-num">12</span>丰富的模板库，一键做同款</h3>
+  <p>用 AI 最难的一步常常是"不知道能用它做什么"。TraeWork 模板库覆盖内容创作、数据分析、产品开发、战略研究、办公协同等 <strong>10 个工作场景</strong>：</p>
+  <ul>
+    <li><strong>按场景分类，3 秒看懂能做什么</strong>：以真实产物为主体展示，能力范围一目了然</li>
+    <li><strong>产物优先，看到效果再决定</strong>：HTML 案例可交互预览、视频可播放、图片可放大</li>
+    <li><strong>一键做同款，零学习成本</strong>：自动预填 Prompt + Skill + 应用依赖，喜欢的模板可收藏并跨设备同步</li>
+  </ul>
+
+  <h3><span class="reason-num">13</span>浏览器控制，直接开你自己的浏览器干活</h3>
+  <p>AI 能上网和 AI 能用"你的"浏览器上网是两件事。很多真实工作卡在登录态上——内部系统要 SSO、平台要扫码。TraeWork 的<strong>浏览器控制</strong>把 AI 接到你已登录的 Chrome/Edge/豆包浏览器上：</p>
+  <ul>
+    <li>已登录账号无需重复登录，内部系统和个人账号任务处理更顺畅</li>
+    <li>开启路径：「插件市场」→「浏览器控制」→ 安装 Chrome 扩展 → 输入框使用 <code>浏览器控制</code> 插件</li>
+    <li><strong>移动端远程操控</strong>：手机发指令，电脑用已登录浏览器打开页面、读取内容并回传结果</li>
+    <li>两种模式：干净环境批量抓取用「内置浏览器」；需登录态用「浏览器控制」</li>
+  </ul>
+</section>
+
+<section class="chapter" id="p3-4">
+  <div class="chapter-header">
+    <div class="chapter-num">第十一章 · 理由 14-17</div>
+    <h2 class="chapter-title">本土化生态：更懂国内用户的工作方式</h2>
+    <div class="chapter-subtitle">让工具融入你的工作链路，而不是让你适应工具</div>
+  </div>
+
+  <h3><span class="reason-num">14</span>飞书、企业微信、钉钉等国产套件深度集成</h3>
+  <p>TraeWork 已支持<strong>飞书、企业微信、钉钉、腾讯文档</strong>等国内主流办公工具的官方插件。AI 可以直接进入已有协作链路，参与日常读取、整理、修改与交付。内置丰富的插件市场，找到插件点击授权即可使用。</p>
+  <figure class="fig">
+    <img src="assets/r14-cn-plugins.png" alt="国产办公套件插件市场" loading="lazy">
+    <figcaption>插件市场中的飞书、企业微信、钉钉等国产办公套件插件，点击授权即可接入协作链路。<span class="source-tag">TraeWork 官方知识库</span></figcaption>
+  </figure>
+  <blockquote>
+    <p>在飞书收到待整理文档，无需下载再上传——直接在 TraeWork 中引用飞书链接，AI 读取后完成整理，结果同步回飞书。</p>
+  </blockquote>
+
+  <h3><span class="reason-num">15</span>更契合中文用户的工作方式</h3>
+  <p>周报、复盘、需求拆解、活动策划、代码解释、会议结论整理——这些场景无需先翻译成英文逻辑再适配海外工具模板。无需翻墙、无需注册海外账号，支持<strong>手机号、抖音、Apple ID</strong>等国内常用方式直接登录。</p>
+  <figure class="fig">
+    <img src="assets/r15-login.png" alt="TraeWork 登录界面" loading="lazy">
+    <figcaption>支持手机号、抖音、微信、Apple ID 等国内常用方式直接登录，无门槛。<span class="source-tag">TraeWork 官方知识库</span></figcaption>
+  </figure>
+
+  <h3><span class="reason-num">16</span>最活跃的官方中文社区</h3>
+  <p>遇到产品问题，官方团队、技术支持和热心社区伙伴会迅速响应；产品建议会被官方第一时间看见，还可在社区参与建议投票；社区沉淀了丰富的用户最佳实践，从写指令到用 Skill 复用工作流都能找到参考。<strong>用户就是 TraeWork 最在意的人。</strong></p>
+  <figure class="fig">
+    <img src="assets/r16-community.png" alt="TraeWork 官方中文社区" loading="lazy">
+    <figcaption>TraeWork 官方中文社区：置顶公告、用户讨论、创造力大赛与最佳实践沉淀。<span class="source-tag">TraeWork 官方知识库</span></figcaption>
+  </figure>
+
+  <h3><span class="reason-num">17</span>全链路用户教育，从"知道功能"到"真正用好"</h3>
+  <p>TraeWork 有完整的用户教育体系：产品内置开箱即用的模板和功能引导；中文知识库提供结构化使用指南；视频号持续教学真实操作流程；官方社区沉淀来自真实用户的最佳实践。遇到问题中文社区响应迅速，无需翻阅英文文档。<strong>好的工具不止要强大，更要让每个人都能用好。</strong></p>
+</section>
+
+<section class="chapter" id="p3-5">
+  <div class="chapter-header">
+    <div class="chapter-num">第十二章 · 理由 18-19</div>
+    <h2 class="chapter-title">复用与自动化：从单次使用到长期工作系统</h2>
+    <div class="chapter-subtitle">一次沉淀、反复复用</div>
+  </div>
+
+  <h3><span class="reason-num">18</span>自定义 Skill，将个人工作 SOP 沉淀为可复用能力</h3>
+  <p>把历史积累的<strong>工作规范、内容风格、输出模板</strong>导入生成专属 Skill。后续遇到同类需求无需重复输入，直接调用即可一键复用。你的写作风格、汇报格式、数据分析框架都能被 AI 记住，成为个人的效率杠杆。</p>
+  <blockquote>
+    <p>每周需写固定格式的项目周报（进展、风险、下周计划三个板块）。沉淀为 Skill 后，今后只需说"写周报"，AI 便按你的模板与风格自动组织内容。</p>
+  </blockquote>
+
+  <h3><span class="reason-num">19</span>自动化能力，让重复工作自运转</h3>
+  <p>固定时间、固定逻辑、固定产物的工作都可考虑自动化：日报、周报、竞品动态、代码仓库巡检、舆情摘要、数据异常提醒、待办汇总。</p>
+  <ul>
+    <li>社区运营人员可设定 AI 定期分析社区数据、筛选优质内容、识别核心用户并自动完成活动复盘</li>
+    <li>内容团队可按固定规则定期整理素材、生成阶段性报告</li>
+  </ul>
+  <p>配置一次规则即可<strong>持续运行</strong>，把大量重复劳动从人手中释放。</p>
+</section>
+
+<section class="chapter" id="p3-6">
+  <div class="chapter-header">
+    <div class="chapter-num">第十三章 · 理由 20</div>
+    <h2 class="chapter-title">安全：数据兜底，放心交付</h2>
+    <div class="chapter-subtitle">信任 AI 的前提是：即使它犯错，你也有恢复的手段</div>
+  </div>
+
+  <p>随着 AI 越来越多地参与文件操作、内容修改和命令执行，大家最关心的问题变成了：如果 AI 出错了怎么办？</p>
+
+  <p>TraeWork 在安全兜底和恢复能力上提供了更强保障——<strong>即使在执行命令或文件操作场景中出现误操作</strong>，你依然拥有可回退、可恢复与可控空间。</p>
+
+  <div class="callout danger">
+    <div class="callout-title">回收站兜底机制</div>
+    <p>TraeWork 安全沙箱机制将删除文件加入电脑的<strong>回收站</strong>，AI 操作中被误删的内容可直接找回。当你让 AI 整理大量文件、批量修改内容时，回收站便是最后一道安全网。</p>
+  </div>
+
+  <p>选择一款 AI 工具，表面上是在选模型，本质上是在选一种工作方式。TraeWork 所有打磨都朝着同一个方向：<strong>让国内用户真正用起来，并且持续用下去。与其多一个被收藏的 AI，不如多一个每天都在用的 TraeWork。</strong></p>
+</section>
+
+<!-- ========== 第四部分 ========== -->
+<div class="part-break" data-part="第四部分 核心能力详解"></div>
+
+<section class="chapter" id="p4-1">
+  <div class="chapter-header">
+    <div class="chapter-num">第十四章 · Skill</div>
+    <h2 class="chapter-title">Skill 技能系统：把 SOP 变成可复用能力</h2>
+    <div class="chapter-subtitle"><span class="badge-tag">进阶</span> 你的写作风格、汇报格式、分析框架都能被记住</div>
+  </div>
+
+  <p>Skill 是给 AI 使用的"专业能力说明书"，定义任务的场景、执行需要遵循的要求和步骤。每个人都有自己的工作规范与内容风格，若每次都重新描述需求背景，AI 再强也难带来持续效率提升。真正的提效在于"一次沉淀、反复复用"。</p>
+
+  <h3>15.1 一个基础 Skill 的结构</h3>
+  <pre data-label="SKILL.md">---
+name: 技能名称
+description: 简要描述这个技能的功能和使用场景
+---
+
+# 技能名称
+
+## 描述
+说明这个技能的作用。
+
+## 使用场景
+说明什么时候应该触发这个技能。
+
+## 指令
+清晰地告诉智能体应该按什么步骤完成任务。
+
+## 示例（可选）
+给出输入 / 输出示例，帮助智能体理解预期效果。</pre>
+
+  <h3>15.2 判断一件工作是否值得沉淀为 Skill</h3>
+  <ul>
+    <li>是否<strong>高频重复</strong>？</li>
+    <li>是否每次都要解释<strong>同一批要求</strong>？</li>
+    <li>是否<strong>流程比较固定</strong>？</li>
+    <li>是否经验可以<strong>团队共享</strong>？</li>
+  </ul>
+  <p>满足其一，就可以尝试从一次性 Prompt 升级为 Skill。</p>
+</section>
+
+<section class="chapter" id="p4-2">
+  <div class="chapter-header">
+    <div class="chapter-num">第十五章 · Rules &amp; Memory</div>
+    <h2 class="chapter-title">规则与记忆：固定约束，记住偏好</h2>
+    <div class="chapter-subtitle"><span class="badge-tag">进阶</span> 临时 Prompt 解决一次问题，规则和记忆解决长期问题</div>
+  </div>
+
+  <div class="compare-box">
+    <div class="compare-item good">
+      <h4>Rules 规则（硬约束）</h4>
+      <p>用来固定必须遵守的规则：</p>
+      <ul>
+        <li>代码项目的技术栈、命名风格、测试要求</li>
+        <li>文档项目的语气、结构、禁用词</li>
+        <li>设计项目的组件规范、间距规则、品牌风格</li>
+      </ul>
+      <p>这些内容不应该每次重新说。</p>
+    </div>
+    <div class="compare-item good">
+      <h4>Memory 记忆（长期偏好）</h4>
+      <p>保存"以后也会用到"的协作偏好：</p>
+      <ul>
+        <li>喜欢先给结论再给依据</li>
+        <li>公众号文章不要过度标题党</li>
+        <li>代码修改必须说明风险点</li>
+        <li>方案文档要明确 owner 和 deadline</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="gallery-grid two">
+    <figure class="fig"><img src="assets/tips-14.png" alt="规则管理界面" loading="lazy"><figcaption>Rules 规则：创建并管理硬约束，聊天中自动遵循</figcaption></figure>
+    <figure class="fig"><img src="assets/tips-15.png" alt="记忆设置界面" loading="lazy"><figcaption>Memory 记忆：记住历史对话上下文与长期偏好</figcaption></figure>
+  </div>
+  <p class="source-tag" style="text-align:center;">TraeWork 官方知识库</p>
+</section>
+
+<section class="chapter" id="p4-3">
+  <div class="chapter-header">
+    <div class="chapter-num">第十六章 · MCP 与插件</div>
+    <h2 class="chapter-title">MCP 工具与插件市场</h2>
+    <div class="chapter-subtitle"><span class="badge-tag">进阶</span> 通过工具扩展 AI 的能力边界</div>
+  </div>
+
+  <p>TraeWork 内置丰富的<strong>插件市场</strong>，按分类提供基础功能、注册登录、开发工具、辅助设计、界面设计、内容营销等插件，点击授权即可使用。</p>
+
+  <p>通过 MCP（Model Context Protocol）工具，TraeWork 可以连接外部系统和数据源，让 AI 读取、操作更多工具。典型插件包括：</p>
+  <ul>
+    <li><strong>国产办公套件</strong>：飞书、企业微信、钉钉、腾讯文档——AI 直接进入协作链路</li>
+    <li><strong>浏览器控制</strong>：连接你已登录的 Chrome/Edge/豆包浏览器</li>
+    <li><strong>开发工具</strong>：Chrome DevTools、浏览器管理、浏览器截图等</li>
+    <li><strong>设计与内容</strong>：辅助设计、界面设计、内容营销类插件</li>
+  </ul>
+
+  <p>相较海外工具难以调用国内数据源，TraeWork 与国内生态的适配程度明显更高。<strong>与其让你适应工具，直接让工具融入你的工作链路。</strong></p>
+</section>
+
+<section class="chapter" id="p4-4">
+  <div class="chapter-header">
+    <div class="chapter-num">第十七章 · 自动化</div>
+    <h2 class="chapter-title">自动化任务：让重复工作自运转</h2>
+    <div class="chapter-subtitle"><span class="badge-tag">进阶</span> 配置一次，持续运行</div>
+  </div>
+
+  <p>TraeWork 支持自动化任务能力。你可以先从小自动任务开始尝试，确认结果输出稳定，再不断增加判断逻辑和分发动作。</p>
+
+  <h3>18.1 适合自动化的工作</h3>
+  <p>凡是<strong>固定时间、固定逻辑、固定产物</strong>的工作，都应考虑自动化：</p>
+  <div class="card-grid">
+    <div class="card"><h4>日报 / 周报</h4><p>定期汇总数据、整理进展、生成报告</p></div>
+    <div class="card"><h4>竞品动态监控</h4><p>定期抓取竞品官网和公开更新，输出变化与建议</p></div>
+    <div class="card"><h4>代码仓库巡检</h4><p>定期检查 PR、Issue、构建状态并汇总</p></div>
+    <div class="card"><h4>舆情摘要</h4><p>监控品牌关键词，定期生成摘要报告</p></div>
+    <div class="card"><h4>数据异常提醒</h4><p>监控关键指标，异常时自动通知</p></div>
+    <div class="card"><h4>待办汇总</h4><p>定期收集各渠道待办，统一汇总分发</p></div>
+  </div>
+
+  <h3>18.2 写清楚自动化的边界</h3>
+  <ul>
+    <li>哪些内容可以<strong>直接生成</strong></li>
+    <li>哪些必须<strong>标记为待确认</strong></li>
+    <li>哪些情况要<strong>提醒人工介入</strong></li>
+  </ul>
+  <p>AI 最适合承担重复收集、整理和初步判断，关键决策仍应留给人。</p>
+  <figure class="fig">
+    <img src="assets/r19-automation.png" alt="自动化任务模板" loading="lazy">
+    <figcaption>自动化任务模板：每日 AI 新闻简报、品牌指数监控周报等可配置后持续运行。<span class="source-tag">TraeWork 官方知识库</span></figcaption>
+  </figure>
+</section>
+
+<section class="chapter" id="p4-5">
+  <div class="chapter-header">
+    <div class="chapter-num">第十八章 · 模型与多模态</div>
+    <h2 class="chapter-title">多模型切换与文生图 / 文生视频</h2>
+    <div class="chapter-subtitle"><span class="badge-tag">进阶</span> 文字、图片、视频一个工具搞定</div>
+  </div>
+
+  <h3>19.1 多模型自由切换</h3>
+  <p>TraeWork 内置多款大模型，可根据任务类型自由选择最适合的模型；也支持配置自定义模型，使用你订阅的 CodingPlan 或自己的 API Key。内置多款国内最新模型并持续更新，新能力能第一时间在工作中用起来。</p>
+  <figure class="fig">
+    <img src="assets/tips-17.png" alt="配置自定义模型" loading="lazy">
+    <figcaption>添加自定义模型：填入模型 ID、API 密钥并进行高级配置，还可调大上下文窗口。<span class="source-tag">TraeWork 官方知识库</span></figcaption>
+  </figure>
+
+  <h3>19.2 Seedream 文生图</h3>
+  <p>支持插画、写实、扁平等多种风格，可直接为方案、公众号、活动生成配图。</p>
+
+  <h3>19.3 Seedance 文生视频</h3>
+  <p>从文案描述直接产出可用短视频素材。配合文生图，可在同一工作流内完成"文字撰写 + 配图生成 + 短视频制作"的完整链路，无需切换设计或剪辑工具。</p>
+</section>
+
+<section class="chapter" id="p4-6">
+  <div class="chapter-header">
+    <div class="chapter-num">第十九章 · 浏览器控制</div>
+    <h2 class="chapter-title">浏览器控制：用你已登录的浏览器干活</h2>
+    <div class="chapter-subtitle"><span class="badge-tag">进阶</span> 从"AI 在沙盒里上网"到"AI 用你的浏览器办事"</div>
+  </div>
+
+  <p>很多真实工作卡在登录态上：内部系统要 SSO、平台要扫码、社区内容要登录可见。AI 自己起一个干净浏览器，第一步就被登录墙拦住；而你自己的 Chrome 里账号早就登着。</p>
+
+  <h3>20.1 开启方式</h3>
+  <ol>
+    <li>进入「插件市场」→「浏览器控制」</li>
+    <li>完成 Chrome 扩展程序安装（TraeClosure extension for external browser automation）</li>
+    <li>在输入框使用 <code>浏览器控制</code> 插件即可唤起外置浏览器执行任务</li>
+  </ol>
+  <div class="gallery-grid two">
+    <figure class="fig"><img src="assets/r13-plugin-market.png" alt="插件市场" loading="lazy"><figcaption>插件市场：搜索并安装「浏览器控制」等扩展能力</figcaption></figure>
+    <figure class="fig"><img src="assets/r13-browser-control.png" alt="浏览器控制设置" loading="lazy"><figcaption>浏览器控制设置：连接 Chrome/Edge，复用本地已登录账号</figcaption></figure>
+  </div>
+  <p class="source-tag" style="text-align:center;">TraeWork 官方知识库</p>
+
+  <h3>20.2 两种模式按需选择</h3>
+  <table>
+    <thead><tr><th>模式</th><th>适合场景</th></tr></thead>
+    <tbody>
+      <tr><td><strong>内置浏览器</strong></td><td>需要干净环境、不涉及登录的批量抓取和验证</td></tr>
+      <tr><td><strong>浏览器控制</strong></td><td>需要登录态、涉及公司内部系统或个人账号的操作</td></tr>
+    </tbody>
+  </table>
+
+  <h3>20.3 移动端远程操控电脑</h3>
+  <p>人不在工位也能发起任务。通勤路上想起要看竞品昨天更新了什么，手机发一句"使用 Chrome 帮我看下小红书主页有哪些帖子"，TraeWork 会在电脑上启用外置浏览器，自动导航、读取页面并把整理好的结果回传到手机——不用开电脑，也不用重新登录。</p>
+</section>
+
+<section class="chapter" id="p4-7">
+  <div class="chapter-header">
+    <div class="chapter-num">第二十章 · 模板与文件夹</div>
+    <h2 class="chapter-title">模板库一键做同款 &amp; 项目文件夹</h2>
+    <div class="chapter-subtitle"><span class="badge-tag">进阶</span> 先看见效果，再决定要不要做</div>
+  </div>
+
+  <h3>21.1 模板库</h3>
+  <p>模板库覆盖内容创作、数据分析、产品开发、战略研究、办公协同等 <strong>10 个工作场景</strong>，以真实产物为主体展示：</p>
+  <ul>
+    <li>HTML 案例可<strong>交互预览</strong>，视频案例支持播放，图片案例支持放大</li>
+    <li>点击"做同款"，系统自动预填 <strong>Prompt + Skill + 应用依赖</strong>，创建任务即可执行</li>
+    <li>喜欢的模板可<strong>收藏并跨设备同步</strong>，随时复用</li>
+  </ul>
+  <blockquote>
+    <p>刚注册的运营同学在模板库看到"行业市场增长数据看板"HTML 案例，预览正是自己想要的效果，点"做同款"后 Prompt 和 Skill 自动填好，稍作修改便跑出了自己业务的数据看板，全程没写一句指令。</p>
+  </blockquote>
+  <div class="gallery-grid two">
+    <figure class="fig"><img src="assets/r12-templates-1.png" alt="模板库界面" loading="lazy"><figcaption>模板库按工作场景分类，以真实产物为主体展示，一键"做同款"</figcaption></figure>
+    <figure class="fig"><img src="assets/r12-templates-2.png" alt="模板预览效果" loading="lazy"><figcaption>HTML 模板可交互预览，所见即所得，确认效果后再动手</figcaption></figure>
+  </div>
+  <p class="source-tag" style="text-align:center;">TraeWork 官方知识库</p>
+
+  <h3>21.2 项目文件夹</h3>
+  <p>把项目相关资料统一上传到项目文件夹，提前完成上下文沉淀。之后发起新任务，AI 根据描述自动定位相关文件并调用内容，无需重复上传或精确描述文件名、路径、版本。</p>
+</section>
+
+<section class="chapter" id="p4-8">
+  <div class="chapter-header">
+    <div class="chapter-num">第二十一章 · 三端协同与语音</div>
+    <h2 class="chapter-title">三端协同 &amp; 语音讨论</h2>
+    <div class="chapter-subtitle"><span class="badge-tag">进阶</span> 工作不被设备限制，想法不被格式限制</div>
+  </div>
+
+  <h3>22.1 三端协同</h3>
+  <p>TraeWork 覆盖移动端、网页端和桌面端，三端灵活协同：</p>
+  <ul>
+    <li>在手机上"<strong>快速发起任务</strong>"、"<strong>远程调度任务</strong>"、"<strong>跟进任务执行情况</strong>"</li>
+    <li>直接打开移动端语音讨论，描述清楚想法，让 AI 先整理初稿</li>
+    <li>选择目标设备和工作路径，向远程环境下发指令，系统自动启动智能体执行</li>
+  </ul>
+
+  <h3>22.2 语音讨论</h3>
+  <p>语音是最自然的人机界面。对于方案构思、活动策划、内容起稿、问题拆解等场景，直接开口描述零散想法，AI 会在对话中帮你梳理逻辑、提炼重点、补齐结构。如果需求不明确，可以让 AI 反向追问：</p>
+  <pre data-label="让 AI 帮你梳理">先直接产出最终的结论，可以把我刚说的内容整理一份需求假设、待确认问题和可能方案。</pre>
+</section>
+
+<!-- ========== 第五部分 ========== -->
+<div class="part-break" data-part="第五部分 100+ 真实用法"></div>
+
+<section class="chapter" id="p5-1">
+  <div class="chapter-header">
+    <div class="chapter-num">第二十二章 · 场景总览</div>
+    <h2 class="chapter-title">TraeWork 的 100+ 种用法：12 大场景分类</h2>
+    <div class="chapter-subtitle">从写代码到过日子，全部来自真实用户投稿</div>
+  </div>
+
+  <p>从拥有十年经验的资深工程师，到备考的学生；从财务、法务、行政，到产品、运营、自媒体——越来越多不同职业的人正在把 TraeWork 用进日常。以下 100+ 用法按 12 个分类整理，每个分类均链接到官方知识库的详细案例集。</p>
+
+  <table>
+    <thead><tr><th>分类</th><th>一句话概览</th><th>适合人群</th></tr></thead>
+    <tbody>
+      <tr>
+        <td><a href="https://bytedance.larkoffice.com/wiki/P6mawcJQci00TTkg2ERcR6DMnih" target="_blank">日常办公提效 &amp; 跨部门协作</a></td>
+        <td>周报日报、会议纪要、任务拆解、项目进度跟进、客户资料整理、跨部门协作</td>
+        <td>职场人、团队负责人</td>
+      </tr>
+      <tr>
+        <td><a href="https://bytedance.larkoffice.com/wiki/HCYKwb9R9igvmrkdjL8cYGOhn1b" target="_blank">数据分析 &amp; 可视化</a></td>
+        <td>报表分析、经营复盘、用户数据分析、销售数据整理、图表生成、看板搭建</td>
+        <td>分析师、财务、运营</td>
+      </tr>
+      <tr>
+        <td><a href="https://bytedance.larkoffice.com/wiki/SS7JwSQfYiJKSik4j9WcZ7EXndf" target="_blank">内容创作 &amp; 自媒体运营</a></td>
+        <td>公众号、小红书、短视频、直播脚本、标题优化、图文排版、内容日历、账号定位</td>
+        <td>自媒体、内容/电商运营</td>
+      </tr>
+      <tr>
+        <td><a href="https://bytedance.larkoffice.com/wiki/BKycwKqmAiKr8okipu7cJpsxnRh" target="_blank">行业调研 &amp; 竞品分析</a></td>
+        <td>行业报告解读、竞品功能分析、市场规模梳理、用户痛点挖掘、商业模式研究</td>
+        <td>咨询、投资、市场</td>
+      </tr>
+      <tr>
+        <td><a href="https://bytedance.larkoffice.com/wiki/MOiJwqWMsiVF2Bk0EMycsmUxn8f" target="_blank">产品设计 &amp; 需求管理</a></td>
+        <td>需求分析、PRD 撰写、用户故事、原型设计、功能规划、需求评审、版本管理</td>
+        <td>产品经理、设计师</td>
+      </tr>
+      <tr>
+        <td><a href="https://bytedance.larkoffice.com/wiki/U5zLwnAPLigAa3kG41EcbzSQnhg" target="_blank">个人求职 &amp; 面试</a></td>
+        <td>简历优化、岗位分析、面试题准备、自我介绍、作品集打磨、职业规划、薪资沟通</td>
+        <td>求职者、招聘团队</td>
+      </tr>
+      <tr>
+        <td><a href="https://bytedance.larkoffice.com/wiki/Q1ynwPYbOiu3KOkfZFNcFW1ln8R" target="_blank">个人学习 &amp; 备考</a></td>
+        <td>学习规划、知识讲解、错题整理、资料总结、考试冲刺、语言学习、技能训练</td>
+        <td>学生、备考人群</td>
+      </tr>
+      <tr>
+        <td><a href="https://bytedance.larkoffice.com/wiki/EmWiwLJnriA4lZkzwSIcJYienR6" target="_blank">科研学习 &amp; 学术表达</a></td>
+        <td>文献阅读、论文润色、研究综述、实验设计、开题报告、投稿回复、学术汇报</td>
+        <td>科研人员、研究生、教师</td>
+      </tr>
+      <tr>
+        <td><a href="https://bytedance.larkoffice.com/wiki/AJDYwkazHiNfX3kaLUVcjIMtnog" target="_blank">软件开发 &amp; 工程实践</a></td>
+        <td>代码生成、Bug 修复、接口设计、架构梳理、测试用例、性能优化、技术文档</td>
+        <td>开发者、工程师</td>
+      </tr>
+      <tr>
+        <td><a href="https://bytedance.larkoffice.com/wiki/Qb3nwUJKPiAUKTkZfRLct65mnLb" target="_blank">知识管理 &amp; 方法沉淀</a></td>
+        <td>笔记整理、会议复盘、SOP 搭建、模板设计、知识库建设、工作流沉淀</td>
+        <td>知识工作者、团队负责人</td>
+      </tr>
+      <tr>
+        <td><a href="https://bytedance.larkoffice.com/wiki/RpLWwqKeSijrblkJBgqcRDaqn7c" target="_blank">垂直专业领域探索</a></td>
+        <td>法律、医疗、教育、金融、人力、营销、运营、咨询等领域的资料解读与判断支持</td>
+        <td>垂直行业从业者</td>
+      </tr>
+      <tr>
+        <td><a href="https://bytedance.larkoffice.com/wiki/TWQrwivQpipMwTkeHiQcTynLn5b" target="_blank">业余生活 &amp; 兴趣爱好</a></td>
+        <td>旅行规划、饮食健康、家居收纳、育儿陪伴、运动计划、购物对比、兴趣学习</td>
+        <td>所有人</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="callout info">
+    <div class="callout-title">投稿共建</div>
+    <p>100 种只是起点，官方希望和用户一起写到 <strong>1000 种</strong>。无论用法宏大还是微小、专业还是脑洞，只要真实好用都欢迎投稿——不仅有机会发布在 TRAE 官方账号，个人内容账号也可获得官方流量扶持，还有百元京东卡激励。投稿通道：<a href="https://bytedance.larkoffice.com/share/base/form/shrcnFy0xJNNws6tOdZAe6QRCkb" target="_blank">最佳实践投稿</a> ｜ 论坛活动：<a href="https://forum.trae.cn/t/topic/171904" target="_blank">TraeWork 的 100 种用法 · 由你来定义</a></p>
+  </div>
+</section>
+
+<section class="chapter" id="p5-2">
+  <div class="chapter-header">
+    <div class="chapter-num">第二十三章 · 阅读路径</div>
+    <h2 class="chapter-title">按人群推荐阅读路径</h2>
+    <div class="chapter-subtitle">不用从第一页翻到最后一页，直接对标你的角色</div>
+  </div>
+
+  <div class="card-grid">
+    <div class="card">
+      <h4>职场办公人</h4>
+      <p>优先看「日常办公提效 &amp; 跨部门协作」「数据分析 &amp; 可视化」「知识管理 &amp; 方法沉淀」</p>
+    </div>
+    <div class="card">
+      <h4>内容 / 运营 / 增长</h4>
+      <p>优先看「内容创作 &amp; 自媒体运营」「行业调研 &amp; 竞品分析」「产品设计 &amp; 需求管理」</p>
+    </div>
+    <div class="card">
+      <h4>开发者 / 产品经理</h4>
+      <p>优先看「软件开发 &amp; 工程实践」「产品设计 &amp; 需求管理」，配合 Code / Design 模式</p>
+    </div>
+    <div class="card">
+      <h4>学习 / 科研 / 求职</h4>
+      <p>优先看「个人学习 &amp; 备考」「科研学习 &amp; 学术表达」「个人求职 &amp; 面试」</p>
+    </div>
+    <div class="card">
+      <h4>垂直行业人群</h4>
+      <p>直接看「垂直专业领域探索」，覆盖法律、医疗、教育、金融、人力、营销、咨询等</p>
+    </div>
+    <div class="card">
+      <h4>所有人</h4>
+      <p>「业余生活 &amp; 兴趣爱好」——旅行规划、饮食健康、家居收纳都有人用 TraeWork 高质量完成</p>
+    </div>
+  </div>
+
+  <p>这里收录的每一个案例，追求的都不是"能跑就行"，而是<strong>可交付、可复用、经得起检验的成果</strong>。</p>
+</section>
+
+<!-- ========== 第六部分 ========== -->
+<div class="part-break" data-part="第六部分 社区与生态"></div>
+
+<section class="chapter" id="p6-1">
+  <div class="chapter-header">
+    <div class="chapter-num">第二十四章 · 社区与社群</div>
+    <h2 class="chapter-title">官方社区与交流群</h2>
+    <div class="chapter-subtitle">你的产品使用路上不是自己一个人</div>
+  </div>
+
+  <h3>25.1 TraeWork 官方中文社区</h3>
+  <p>更多 TraeWork 技巧、干货或实战案例，可前往 <a href="https://forum.trae.cn/c/43-category/43" target="_blank">TraeWork 社区版块</a> 发现和讨论。用户反馈答疑请前往社区 <a href="https://forum.trae.cn/c/7-category/7" target="_blank">帮助与支持</a> 板块提问。</p>
+  <ul>
+    <li><strong>遇到产品问题</strong>：官方团队、技术支持、热心伙伴迅速响应解答</li>
+    <li><strong>想给产品提意见</strong>：建议被官方第一时间看见，可参与建议投票</li>
+    <li><strong>分享 &amp; 学习干货</strong>：社区沉淀丰富的用户最佳实践</li>
+  </ul>
+
+  <h3>25.2 官方交流群</h3>
+  <p>TraeWork 官方交流群已正式开群，和更多 TRAE 友交流使用心得，还有京东卡、TRAE 精美周边、会员权益等社群好礼。可在知识库中扫描"TraeWork 用户交流群"二维码加入（该二维码永久有效）。</p>
+</section>
+
+<section class="chapter" id="p6-2">
+  <div class="chapter-header">
+    <div class="chapter-num">第二十五章 · 活动与招募</div>
+    <h2 class="chapter-title">线上直播、城市活动与 Specialist 招募</h2>
+    <div class="chapter-subtitle">TraeWork 的每一步成长，你都可以参与</div>
+  </div>
+
+  <h3>26.1 线上直播</h3>
+  <p>官方每周安排多场直播（本周 13 场，周一到周天天天都有），覆盖功能教学、场景实战、用户分享等内容。直播日历可在 TRAE 微信公众号查看。</p>
+
+  <h3>26.2 TRAE Friends 城市活动</h3>
+  <p>线下城市活动持续举办，可在知识库"近期活动"板块查看最新安排。</p>
+
+  <h3>26.3 TraeWork Specialist 首期招募</h3>
+  <p>官方希望找到一批已经深度使用 TraeWork 的用户，一起把由真实任务验证的 AI 工作流沉淀下来，让每一次具体实践成为更多人理解 AI 工作方式的入口。</p>
+  <div class="callout info">
+    <div class="callout-title">招募说明</div>
+    <p><strong>不限行业｜不限岗位｜不限组织</strong>。报名问卷与详细说明可在官方知识库"TraeWork Specialist 首期招募"文档中查看。</p>
+  </div>
+
+  <h3>26.4 最佳实践投稿激励</h3>
+  <p>欢迎参与内容共建，分享你使用 TraeWork 在日常工作场景的最佳实践：</p>
+  <ul>
+    <li>有机会发布在 <strong>TRAE 官方账号</strong></li>
+    <li>个人内容账号可获得<strong>官方流量扶持</strong></li>
+    <li>还可获得<strong>百元京东卡激励</strong></li>
+  </ul>
+</section>
+
+<section class="chapter" id="p6-3">
+  <div class="chapter-header">
+    <div class="chapter-num">第二十六章 · 账号矩阵</div>
+    <h2 class="chapter-title">全平台官方账号</h2>
+    <div class="chapter-subtitle">在你常用的平台关注 TRAE</div>
+  </div>
+
+  <table>
+    <thead><tr><th>平台</th><th>入口</th></tr></thead>
+    <tbody>
+      <tr><td><strong>TRAE 官网</strong></td><td><a href="https://www.trae.cn/" target="_blank">trae.cn</a></td></tr>
+      <tr><td><strong>TraeWork 网页版（中国版）</strong></td><td><a href="https://work.trae.cn/" target="_blank">work.trae.cn</a></td></tr>
+      <tr><td><strong>TraeWork 网页版（国际版）</strong></td><td><a href="https://work.trae.ai/" target="_blank">work.trae.ai</a></td></tr>
+      <tr><td><strong>官方社区</strong></td><td><a href="https://forum.trae.cn/c/43-category/43" target="_blank">forum.trae.cn</a></td></tr>
+      <tr><td><strong>B 站官方账号</strong></td><td><a href="https://b23.tv/1DFMuKT" target="_blank">b23.tv/1DFMuKT</a></td></tr>
+      <tr><td><strong>小红书官方账号</strong></td><td><a href="https://xhslink.com/m/9FTjEUiFGre" target="_blank">xhslink.com/m/9FTjEUiFGre</a></td></tr>
+      <tr><td><strong>抖音官方账号</strong></td><td>在抖音搜索"TRAE"关注</td></tr>
+      <tr><td><strong>微信公众号</strong></td><td>微信搜索"TRAE"或扫描知识库中的公众号二维码</td></tr>
+    </tbody>
+  </table>
+
+  <p>同时提供产品下载、知识库更新通知（点击知识库右上角"..."可开启"关注文档更新"）等渠道。</p>
+</section>
+
+<!-- ========== 第七部分 ========== -->
+<div class="part-break" data-part="第七部分 最新动态 ·「我的文件」上线"></div>
+
+<section class="chapter" id="p7-1">
+  <div class="chapter-header">
+    <div class="chapter-num">第二十七章 · 公众号推文</div>
+    <h2 class="chapter-title">「我的文件」正式上线：一个空间装下所有工作产物</h2>
+    <div class="chapter-subtitle"><span class="badge-tag">最新</span> TraeWork 从「工具」升级为你的「工作入口」</div>
+  </div>
+
+  <p><em>本文整理自 TRAE 微信公众号推文（mp.weixin.qq.com/s/N2dMLK6YQnSfEoAjYX1ouQ）。</em></p>
+
+  <p>做完的东西，下次还想改，你通常会经历什么？在飞书里翻、在对话记录里翻、在本地文件夹里翻——<strong>找文件，比改文件还慢。</strong>产物一旦做完，就散落在任务、对话和各类文件夹里，下次想接着改，得先花时间把它扒出来，再把上次的背景重新交代一遍。</p>
+
+  <p>今天，<strong>TraeWork「我的文件」正式上线。</strong>它把你在 TraeWork 里做出的 HTML 产物、图片、视频产物，全部汇聚到一个空间——找到就能改，打开即续写，上下文自动关联，离交付更近一步。</p>
+
+  <figure class="fig">
+    <img src="assets/wx-02.jpeg" alt="我的文件上线" loading="lazy">
+    <figcaption>TraeWork「我的文件」正式上线：你的作品，随时续写。<span class="source-tag">TRAE 微信公众号</span></figcaption>
+  </figure>
+
+  <h3>28.1 一个空间，装下你所有的工作产物</h3>
+  <p>过去，产物存在一个个 Task 里，你得先想起"那次对话叫什么"，才能找回它。现在进入「我的文件」，所有产物一目了然，按来源分成三类：</p>
+  <div class="card-grid">
+    <div class="card"><h4>本地产物</h4><p>本机创建和编辑的产物，随手可取</p></div>
+    <div class="card"><h4>云端产物</h4><p>保存到云端的产物，Desktop 和 Web 两端同步访问，换设备也不丢</p></div>
+    <div class="card"><h4>飞书产物</h4><p>同步到飞书的产物，团队一起看、一起改，协作不断线</p></div>
+  </div>
+  <p>不管是 HTML 页面、图片还是视频，都在同一个页面陈列。你不再需要记住它存在哪，只需要打开「我的文件」。</p>
+
+  <h3>28.2 两种视图，怎么找都顺手</h3>
+  <p>同一份产物，TraeWork 准备了两种"找回它"的方式：</p>
+  <ul>
+    <li><strong>网格缩略图</strong>：只记得大概长什么样？缩略图铺开，看一眼封面就认出来</li>
+    <li><strong>列表视图</strong>：清楚知道要找哪份？名称、修改时间、来源一列排开，一下锁定</li>
+  </ul>
+  <p>支持<strong>置顶、搜索和分组</strong>，下次再找不用翻。</p>
+
+  <figure class="fig">
+    <img src="assets/wx-04.gif" alt="两种视图切换演示" loading="lazy">
+    <figcaption>网格缩略图与列表视图自由切换，配合置顶、搜索、分组快速定位产物。<span class="source-tag">TRAE 微信公众号</span></figcaption>
+  </figure>
+
+  <h3>28.3 打开即续写，上下文不用重讲</h3>
+  <p>这不只是一个"文件夹"。每个产物都可以<strong>关联到对应的 Task</strong>。打开文件，可以查看完整对话和生成过程，无缝衔接上一次的工作——不用重新解释这是什么报告，也不用从头描述需求。</p>
+  <p>除了回到原 Task，你还可以：</p>
+  <ul>
+    <li><strong>置顶产物</strong>，把高频文件固定在最前</li>
+    <li><strong>打开对应任务</strong>，回到它诞生的那次对话</li>
+    <li><strong>带着产物新建对话</strong>，换一个思路继续做</li>
+    <li><strong>分享 / 打开本地文件夹 / 删除</strong>，常用文件操作集中完成</li>
+  </ul>
+
+  <figure class="fig">
+    <img src="assets/wx-06.gif" alt="打开即续写演示" loading="lazy">
+    <figcaption>打开产物即可查看完整对话与生成过程，一键回到原任务或带着产物新建对话。<span class="source-tag">TRAE 微信公众号</span></figcaption>
+  </figure>
+
+  <h3>28.4 越反复改，越离不开</h3>
+  <p>「我的文件」为<strong>高频迭代的知识工作者</strong>而生：产品经理持续更新竞品分析，运营每周维护活动页面，数据分析师定期更新看板——这些工作都不是"从零生成"，而是<strong>围绕已有成果持续迭代</strong>。</p>
+
+  <div class="callout info">
+    <div class="callout-title">使用方式</div>
+    <p>将 TraeWork 更新至最新版本，进入「我的文件」，让你的每一份产物，都能一秒找回、打开即续。</p>
+  </div>
+
+  <figure class="fig">
+    <img src="assets/wx-08.gif" alt="我的文件操作演示" loading="lazy">
+    <figcaption>「我的文件」完整操作演示：汇聚产物、切换视图、置顶、打开续写与分享。<span class="source-tag">TRAE 微信公众号</span></figcaption>
+  </figure>
+</section>
+
+<section class="chapter" id="p7-2">
+  <div class="chapter-header">
+    <div class="chapter-num">第二十八章 · 官方动态</div>
+    <h2 class="chapter-title">本周 13 场官方直播（8 月 10–16 日）</h2>
+    <div class="chapter-subtitle"><span class="badge-tag">2026-08-10</span> 来源：TRAE 微信公众号 · 官方直播日历</div>
+  </div>
+
+  <p>TRAE 官方直播是与用户持续交流 AI 工作方式的固定栏目，每一期都从真实场景出发，围绕一个具体问题展开：可能是产品能力的使用方法，也可能是行业场景的解决思路或实践复盘。本周共安排 <strong>13 场</strong>主题直播，覆盖知识库搭建、金融与电商实战、内容创作、数据分析、产品新能力、用户增长等方向。</p>
+
+  <table>
+    <thead><tr><th>日期</th><th>场次</th><th>主题</th><th>主讲</th></tr></thead>
+    <tbody>
+      <tr><td>8/10 周一 20:00</td><td>No.26</td><td>用 TraeWork 搭建个人知识库——效率提升，有用的知识库这样搭</td><td>司命不卖命（人力资源外包 COE、TraeWork Specialist）</td></tr>
+      <tr><td>8/11 周二 19:00</td><td>No.27</td><td>TraeWork 在手，金融分析不愁——从行情解读到研究初稿，高频任务一套跑通</td><td>Max（TRAE 行业运营）</td></tr>
+      <tr><td>8/11 周二 20:00</td><td>No.28</td><td>TraeWork 在手，电商运营不愁——从选品到广告分析全搞定</td><td>Rita（TRAE 行业运营）</td></tr>
+      <tr><td>8/11 周二 21:00</td><td>No.29</td><td>TraeWork 在手，创作不愁——从选题构思到内容生产、一键发布全搞定</td><td>鑫梃（TRAE 产品经理）</td></tr>
+      <tr><td>8/12 周三 19:00</td><td>No.30</td><td>多人协同办公场景中 Skill 的孵化——以部门级周报整理 Skill 制作为例</td><td>雨灯（浙江省公众信息产业需求分析师）</td></tr>
+      <tr><td>8/12 周三 20:00</td><td>No.31</td><td>用 TraeWork 把复杂数据变成决策——一套从清洗到洞察的数据分析方法论</td><td>杨辉（TRAE 战略分析师）</td></tr>
+      <tr><td>8/12 周三 21:00</td><td>No.32</td><td>TraeWork 在手，新鲜金融资讯不愁——专业数据源，从查数到报告全搞定</td><td>Sherrie（TRAE 产品经理）</td></tr>
+      <tr><td>8/13 周四 19:00</td><td>No.33</td><td>让 TraeWork 成为短剧先锋军——拒绝 AI 焦虑，找到剧本 AI 创作上限</td><td>林溪（短剧剧本工作室负责人）</td></tr>
+      <tr><td>8/13 周四 20:00</td><td>No.34</td><td>解锁 TraeWork 最新能力——产品经理视角 × 真实场景拆解，用对新功能</td><td>治乾（TRAE 产品经理）</td></tr>
+      <tr><td>8/13 周四 21:00</td><td>No.35</td><td>解锁 TraeWork 最全电商插件</td><td>正御（TRAE 产品经理）</td></tr>
+      <tr><td>8/14 周五 20:00</td><td>No.36</td><td>玩转 TraeWork 知识库——新手必修课，官方带你学用知识库</td><td>小菠（TRAE 用户运营）</td></tr>
+      <tr><td>8/15 周六 20:00</td><td>No.37</td><td>运营，也能自己造工具——如何用 TraeWork 实现用户增长</td><td>Roy（商业化运营专家、TraeWork Specialist）</td></tr>
+      <tr><td>8/16 周日 20:00</td><td>No.38</td><td>产品经理如何用 TraeWork 重塑工作流</td><td>可可、治乾（TRAE 产品经理）</td></tr>
+    </tbody>
+  </table>
+
+  <div class="callout info">
+    <div class="callout-title">观看方式</div>
+    <p>关注 TRAE 微信公众号，在"直播日历"推文中预约感兴趣的场次。往期直播（No.20–No.25）涵盖电商运营、秋招、小红书内容生产、个人工作台搭建等主题，可在公众号"往期直播"中回看。</p>
+  </div>
+</section>
+
+<section class="chapter" id="p7-3">
+  <div class="chapter-header">
+    <div class="chapter-num">第二十九章 · 社区动态</div>
+    <h2 class="chapter-title">官方知识库上线 · 社区学习活动回顾</h2>
+    <div class="chapter-subtitle"><span class="badge-tag">2026-07-15</span> 来源：forum.trae.cn TraeWork 专区（官方公告）</div>
+  </div>
+
+  <p>7 月 15 日，<strong>TRAE Work 官方 AI 工作知识库正式上线</strong>，由 TRAE Work 官方团队出品，是面向真实办公场景系统化沉淀的最全 AI 知识库。首期内容包含：</p>
+
+  <div class="card-grid">
+    <div class="card"><h4>7 大真实工作场景</h4><p>覆盖学习成长、写作沟通、数据处理、视觉设计、汇报演示、信息采集、开发自动化与办公协作</p></div>
+    <div class="card"><h4>30+ 篇实战指南</h4><p>从"接到工作任务"到"最终交付落地"，每一步都有官方指南稳稳接住</p></div>
+    <div class="card"><h4>40 万+ 字</h4><p>系统化的专业工作方法，而非零散 Prompt 合集，可一步步跟着完成</p></div>
+  </div>
+
+  <p>配合知识库上线，官方在社区发起了「评论送 500 份美丽周边」活动：阅读知识库任意章节，在活动帖评论区分享学习心得并带上话题 <code>#TRAE Work 知识库学习#</code>，即可参与抽奖。活动设置两类奖励：</p>
+  <ul>
+    <li><strong>积极评论奖（500 名）</strong>：发布有效评论并完成信息登记，前 500 名获 TRAE 官方周边一份</li>
+    <li><strong>优质评论奖（70 名）</strong>：每个工作日评选 10 条优质评论，额外送出 50 元京东卡</li>
+  </ul>
+  <p>活动已开奖，共有 70 位社区伙伴获得优质评论奖。官方在公告中强调："真实的工作，很少能靠一句 Prompt 解决。我们从来不缺 Prompt 合集和功能教程，真正稀缺的是一套围绕真实任务、能够一步步跟着完成的专业工作方法。"</p>
+
+  <div class="callout tip">
+    <div class="callout-title">参与共建</div>
+    <p>知识库欢迎用户持续分享实战经验。最佳实践投稿不仅有机会发布在 TRAE 官方账号、个人内容账号获得官方流量扶持，还可获得百元京东卡激励；深度用户还可报名 <strong>TraeWork Specialist</strong>，一起把真实任务验证的 AI 工作流沉淀下来。</p>
+  </div>
+</section>
+
+<section class="chapter" id="p7-4">
+  <div class="chapter-header">
+    <div class="chapter-num">第三十章 · 线下活动</div>
+    <h2 class="chapter-title">TRAE Friends 城市活动：8 月下旬至 9 月排期</h2>
+    <div class="chapter-subtitle"><span class="badge-tag">2026-08-13</span> 来源：TraeWork 官方知识库「TRAE Friends 城市活动」</div>
+  </div>
+
+  <p>TRAE Friends 是 TRAE 官方在各城市举办的线下社区活动。本月主题聚焦 TraeWork，来自不同行业、不同岗位的 AI 实践者相聚现场，通过真实案例分享、开放麦交流和现场实操，分享各自使用 AI 的方法，也聊聊实践中的问题与思考。无论你是刚接触 AI，还是已经在日常工作中使用 AI，都可以带着经验、问题和好奇心来到现场。</p>
+
+  <h3>31.1 活动亮点</h3>
+  <div class="card-grid">
+    <div class="card"><h4>从真实任务出发</h4><p>带上一个最近想解决的工作任务，在现场一起尝试，看看 AI 能帮你完成什么</p></div>
+    <div class="card"><h4>看见多元实践</h4><p>了解产品、运营、内容、设计、咨询等不同岗位使用 AI 的真实方法与经验</p></div>
+    <div class="card"><h4>连接同城伙伴</h4><p>与本地 AI 实践者面对面交流，分享一线工作中的经验、问题与思考</p></div>
+    <div class="card"><h4>带走具体成果</h4><p>现场完成一项实际任务，带走一份可以复用的工作模板与方法</p></div>
+  </div>
+
+  <h3>31.2 城市排期</h3>
+  <p>城市持续更新中，日期或有调整。8 月至 9 月已公布的排期如下：</p>
+  <table>
+    <thead><tr><th>日期</th><th>城市</th></tr></thead>
+    <tbody>
+      <tr><td>8 月 15、16 日</td><td>贵阳、济南</td></tr>
+      <tr><td>8 月 29 日</td><td>昆明、唐山、烟台、常州、青岛、邯郸、乌鲁木齐、大连、上海、济宁、安阳、厦门、湖州、苏州</td></tr>
+      <tr><td>8 月 30 日</td><td>珠海、温州、宁波、兰州、天津、威海、西宁、廊坊、长沙、哈尔滨、南京、金华</td></tr>
+      <tr><td>9 月 5 日</td><td>日照、沈阳、北京、泉州、咸宁、西安、洛阳、济南、百色、郑州</td></tr>
+      <tr><td>9 月 6 日</td><td>成都、武汉、贵阳、潍坊、江门、太原、淄博、清远、东莞、南宁、佛山、杭州</td></tr>
+    </tbody>
+  </table>
+
+  <h3>31.3 活动形式</h3>
+  <p>每场活动约 4 小时，现场设有 TraeWork 技巧分享、嘉宾分享或开放麦、小组讨论、实操体验、成果展示和自由交流等环节。参考流程：</p>
+  <ul>
+    <li>13:30–14:00 现场签到与自由交流</li>
+    <li>14:00–14:30 TraeWork 产品与技巧分享</li>
+    <li>14:30–15:00 行业嘉宾或开放麦分享</li>
+    <li>15:00–15:20 真实场景主题讨论</li>
+    <li>15:20–15:40 活动合影与茶歇交流</li>
+    <li>15:40–16:00 TraeWork 现场实践</li>
+    <li>16:00–17:00 实践成果展示与交流</li>
+    <li>17:00–17:30 同城伙伴自由交流</li>
+  </ul>
+
+  <div class="callout info">
+    <div class="callout-title">报名方式</div>
+    <p>各城市活动的具体时间、地点与报名方式将陆续在官方知识库发布；报名需经审核，最终参与资格以审核结果为准，不同城市活动流程可能略有调整。具体安排以报名页信息为准。往期活动回顾可在 TRAE 微信公众号查看「TRAE Friends」系列推文。</p>
+  </div>
+</section>
+
+<section class="chapter" id="p7-5">
+  <div class="chapter-header">
+    <div class="chapter-num">第三十一章 · 有奖征集</div>
+    <h2 class="chapter-title">「TraeWork 的 1000 种用法」有奖征集：由你来定义</h2>
+    <div class="chapter-subtitle"><span class="badge-tag">2026-08-13</span> 来源：forum.trae.cn 福利活动（TRAE 官方运营）</div>
+  </div>
+
+  <p>官方此前推出《TraeWork 的 100 种用法》，汇聚了大量鲜活的真实场景：有人用它做分析与汇报，有人用它做调研与整理，还有人把它接入日常流程，变成一种稳定、可复用的工作方式。在官方看来，TraeWork 的边界从来不是由官方定义的，而是来自每一位真实用户的真实经验——从 100+ 种到 1000+ 种，征集继续。</p>
+  <p><strong>活动周期：2026 年 8 月 13 日 – 9 月 30 日</strong>。把你真正用过、跑通过、交付过的案例留下来，让更多人从你的经验里，找到下一种属于自己的 TraeWork 用法。</p>
+
+  <h3>32.1 投稿方向</h3>
+  <p>官方希望收到真实、具体、可复用的用法，不追求华丽，只在意它是否真的帮你解决了问题。方向包括：</p>
+  <ul>
+    <li>日常办公提效与跨部门协作</li>
+    <li>数据分析与可视化</li>
+    <li>内容创作与自媒体运营</li>
+    <li>行业调研与竞品分析</li>
+    <li>产品设计与需求管理</li>
+    <li>个人求职与面试、个人学习与备考</li>
+    <li>科研与学术</li>
+    <li>软件开发与工程实践</li>
+    <li>知识管理与方法沉淀</li>
+    <li>垂直专业领域探索、业务生活与兴趣爱好</li>
+  </ul>
+
+  <h3>32.2 投稿模板</h3>
+  <p>官方给出的模板本质上是在讲一个完整的故事：你遇到了什么问题 → 你是怎么用 TraeWork 解决的 → 结果好了多少 → 最终交付了什么 → 你踩过哪些坑。按这个顺序写，别人一眼就能看懂，也更容易照着复现：</p>
+  <ol>
+    <li><strong>标题</strong>：我用 TraeWork ______（一句话真实用法）</li>
+    <li><strong>我是谁，我卡在哪</strong>：个人背景 + 当前痛点</li>
+    <li><strong>我用 TraeWork 怎么解决的</strong>：模式（Work / Code / Design）+ 具体实践步骤（关键步骤配截图）</li>
+    <li><strong>提效前后对比</strong>：用最直观的方式（最好是表格）说明变化</li>
+    <li><strong>成果展示</strong>：最终交付的产物，配截图或视频</li>
+    <li><strong>实践经验总结</strong>：踩过的坑、摸索出的小窍门（1–3 条）</li>
+    <li><strong>分享你的实操对话（必填）</strong>：分享对话链接 + 关键步骤说明</li>
+  </ol>
+
+  <h3>32.3 参与方式与奖励</h3>
+  <p>在 TRAE 社区「TraeWork 专区」按模板发帖，标题带话题 <code>#TraeWork的1000种用法</code>。同一作者可投多篇，不同场景不限。</p>
+  <div class="card-grid">
+    <div class="card"><h4>积极参与奖</h4><p>符合投稿要求（真实作品、非搬运）即可获得 500 积分，每人仅限一次，活动结束后统一发放</p></div>
+    <div class="card"><h4>每周专栏收录奖</h4><p>入选即 +3000 积分，无上限；每周三发放上一周入选内容</p></div>
+  </div>
+  <div class="callout tip">
+    <div class="callout-title">发放提示</div>
+    <p>为顺利发放积分，请确保登录 TRAE 和登录社区使用的是同一个手机号。积极参与奖与专栏收录奖不重复发放。</p>
+  </div>
+</section>
+
+<section class="chapter" id="p7-6">
+  <div class="chapter-header">
+    <div class="chapter-num">第三十二章 · 活动共创</div>
+    <h2 class="chapter-title">创造力大赛现场开造：你出难题，开造者用 TraeWork 当场解决</h2>
+    <div class="chapter-subtitle"><span class="badge-tag">2026-08-17</span> 来源：forum.trae.cn 福利活动（TRAE 官方运营）</div>
+  </div>
+
+  <p>很多好用的工具，最初都来自一句"要是有个东西能帮我解决就好了"。这次官方把话筒交给你：在活动帖里说出一个你在生活、工作、学习、娱乐中遇到的<strong>真实难题</strong>，官方会挑出有代表性的需求带到 <strong>TRAE AI 创造力大赛线下嘉年华</strong>的「世界公告栏」上，现场开造者任选一个难题发起挑战，用 TraeWork 当场把它变成一份能看、能体验的作品。你不用交作品，也不用会写代码——把难题讲清楚就行，解决的事交给现场的开造者和 TraeWork。</p>
+
+  <h3>33.1 可以出哪些难题</h3>
+  <p>难题不用宏大，越真实、越具体，越容易被接招、被解决：</p>
+  <div class="card-grid">
+    <div class="card"><h4>生活</h4><p>买菜、做饭、出行、旅行、家务、个人管理……哪件小事总在偷走你的时间</p></div>
+    <div class="card"><h4>工作</h4><p>会议纪要、资料整理、数据分析、排期协作、报告制作……哪些事你觉得"不该一直靠手动"</p></div>
+    <div class="card"><h4>学习</h4><p>备课、辅导作业、自我提升……哪个知识点总讲不明白、记不牢，或找不到适合自己的学法</p></div>
+    <div class="card"><h4>娱乐</h4><p>聚会、旅行记录、音乐、游戏、内容创作……有没有一种还没人替你做出来的新玩法</p></div>
+  </div>
+
+  <h3>33.2 怎么出题</h3>
+  <p>直接在活动帖评论区回复两个关键点即可：<strong>【身份】</strong>（如 28 岁上班族 / 33 岁全职妈妈）+ <strong>【难题】</strong>（它发生在什么场景、现在为什么不方便，50–100 字讲清楚）。同一个人可以出多道题，不同难题请分开回复。</p>
+  <p><strong>入选标准</strong>：来自真实经历、场景具体，一看就懂卡在哪；对别人有参考价值，适合用 TraeWork 做成方案、页面、工作流或小工具；内容原创，不涉及个人隐私、商业机密和他人版权。</p>
+
+  <h3>33.3 从难题到现场作品</h3>
+  <p>入选难题会被贴上线下的「世界公告栏」，由现场开造者认领挑战，用 TraeWork 一步步做成可展示、可体验的成果。官方会记录整个开造过程，并在 8 月 26 日 18:00 前发布「世界公告栏开造回顾」，包括公告栏墙面照片（含入选难题）、现场开造过程、作品生成与体验照片。</p>
+  <table>
+    <thead><tr><th>阶段</th><th>时间（北京时间）</th></tr></thead>
+    <tbody>
+      <tr><td>难题征集</td><td>2026 年 8 月 14 – 17 日</td></tr>
+      <tr><td>入选公示</td><td>2026 年 8 月 18 日</td></tr>
+      <tr><td>线下开造</td><td>2026 年 8 月 21 – 22 日</td></tr>
+      <tr><td>成果返图</td><td>2026 年 8 月 26 日</td></tr>
+      <tr><td>奖励发放</td><td>2026 年 8 月 30 日</td></tr>
+    </tbody>
+  </table>
+
+  <div class="callout info">
+    <div class="callout-title">活动奖励</div>
+    <p>只要出的难题被正式收录或入选，就有机会获得 <strong>TRAE 定制周边电脑包</strong>（不限数量）。具体获奖名单将在活动帖统一公示。</p>
+  </div>
+</section>
+
+<section class="chapter" id="p7-7">
+  <div class="chapter-header">
+    <div class="chapter-num">第三十三章 · 社区激励</div>
+    <h2 class="chapter-title">本周社区之星：每周评选，分享、互动、助人赢好礼</h2>
+    <div class="chapter-subtitle"><span class="badge-tag">2026-08-17</span> 来源：forum.trae.cn 社区公告（TRAE 官方运营）</div>
+  </div>
+
+  <p>为了表彰大家在社区中的优秀表现，TRAE 官方推出<strong>「本周社区之星」</strong>每周评选，感谢每一位在社区积极分享、互动、帮助他人的用户。评选结果每周在社区公示，获奖者将获得专属奖励与勋章。</p>
+
+  <h3>34.1 荣誉类型</h3>
+  <div class="card-grid">
+    <div class="card"><h4>Build 之星</h4><p>积极分享 TraeWork 使用技巧、案例与作品</p></div>
+    <div class="card"><h4>助人之星</h4><p>热心帮助其他成员解决问题</p></div>
+    <div class="card"><h4>活力之星</h4><p>积极发起话题、参与互动讨论</p></div>
+    <div class="card"><h4>最佳新人</h4><p>表现突出的新加入成员</p></div>
+  </div>
+
+  <h3>34.2 奖励与登榜</h3>
+  <p>入选「Build 之星」「活力之星」「助人之星」「最佳新人」的用户，将分别获得 <strong>50 元京东卡 + 专属社区勋章</strong>。官方会在 3 个工作日内通过私信联系获奖者发放奖励。</p>
+  <p>想成为下周之星，记得在社区里：</p>
+  <ul>
+    <li>分享 TraeWork 使用技巧或案例</li>
+    <li>积极发起话题、互动讨论</li>
+    <li>帮助其他成员解决问题</li>
+  </ul>
+</section>
+
+<section class="chapter" id="p7-8">
+  <div class="chapter-header">
+    <div class="chapter-num">第三十四章 · 官方动态</div>
+    <h2 class="chapter-title">本周 10 场官方直播（8 月 17–22 日）</h2>
+    <div class="chapter-subtitle"><span class="badge-tag">2026-08-17</span> 来源：TRAE 微信公众号 · 官方直播日历</div>
+  </div>
+
+  <p>承接上周的 13 场直播，TRAE 官方直播继续从真实工作场景出发，围绕一个具体问题展开：可能是产品能力的使用方法，也可能是行业场景的解决思路或实践复盘。本周共安排 <strong>10 场</strong>主题直播，覆盖自动化资讯日报、跨境电商选品与广告、自媒体选题与成片、金融投资研究、服装设计卖点、个人投研体系、产品新能力以及原型快速生成等方向。</p>
+
+  <table>
+    <thead><tr><th>日期</th><th>场次</th><th>主题</th><th>主讲</th></tr></thead>
+    <tbody>
+      <tr><td>8/17 周一 20:00</td><td>No.39</td><td>用 TraeWork 搭建行业资讯日报流水线——把机械的活交给 AI 做</td><td>灰灰（制造业数据运管、TraeWork Specialist）</td></tr>
+      <tr><td>8/18 周二 19:00</td><td>No.40</td><td>AI 辅助跨境电商，助力快速选品和广告分析</td><td>Rita（TRAE 行业运营）</td></tr>
+      <tr><td>8/18 周二 20:00</td><td>No.41</td><td>热点这么多，我为什么只做这一个——60 分钟教会你用 TraeWork 做自媒体选题</td><td>Damon（资深 AI 自媒体创作者、内容工作流长期实践者）</td></tr>
+      <tr><td>8/18 周二 21:00</td><td>No.42</td><td>把 dirty work 交给 Trae，把 alpha 判断留给自己——金融投资专题（一二级从业者与小白友好）</td><td>Rosa（TRAE 战略分析、前一级市场从业者）</td></tr>
+      <tr><td>8/19 周三 19:00</td><td>No.43</td><td>服装设计师视角 × 款式卖点拆解——用 Trae 把设计点转为消费者的购买理由</td><td>米敏（服装设计师、TraeWork Specialist）</td></tr>
+      <tr><td>8/19 周三 20:00</td><td>No.44</td><td>选题定了，怎么把它做成一条视频——用 TraeWork 从选题立项推进到脚本与成片</td><td>Damon（资深 AI 自媒体创作者、内容工作流长期实践者）</td></tr>
+      <tr><td>8/20 周四 19:00</td><td>No.45</td><td>个人投研体系构建</td><td>羽凡（独立投资人、TraeWork Specialist）</td></tr>
+      <tr><td>8/20 周四 20:00</td><td>No.46</td><td>如何用 AI 做数据驱动的电商策略</td><td>Rita（TRAE 行业运营）</td></tr>
+      <tr><td>8/20 周四 21:00</td><td>No.47</td><td>解锁 TraeWork 最新能力——产品经理视角 × 真实场景拆解，带你用对新功能</td><td>治乾（TRAE 产品经理）</td></tr>
+      <tr><td>8/22 周六 20:00</td><td>No.48</td><td>原型活了：TraeWork 让 AI 一句话生成可运行应用</td><td>治乾（TRAE 产品经理）、陈俊铭（TikTok 平台安全大模型产品经理）、魏进锋（前阿里达摩院 AI 算法专家）</td></tr>
+    </tbody>
+  </table>
+
+  <div class="callout info">
+    <div class="callout-title">观看方式</div>
+    <p>关注 TRAE 微信公众号，在「直播日历」推文中预约感兴趣的场次；往期直播 No.26–No.38 涵盖个人知识库、金融与电商运营、短剧创作、Skill 孵化、数据分析方法论、TraeWork 新功能与电商插件、用户增长、大师课等主题，可在公众号「往期直播」中回看。</p>
+  </div>
+</section>
+
+<!-- ========== 附录 ========== -->
+<div class="part-break" data-part="附录"></div>
+
+<section class="chapter" id="app-a">
+  <div class="chapter-header">
+    <div class="chapter-num">附录 A1</div>
+    <h2 class="chapter-title">常用链接与资源</h2>
+  </div>
+
+  <table>
+    <thead><tr><th>资源</th><th>链接</th></tr></thead>
+    <tbody>
+      <tr><td>TraeWork 官方知识库（本书主要来源）</td><td><a href="https://bytedance.larkoffice.com/wiki/RxVXweukSi7JtIkhOKBcuSlbnfC" target="_blank">bytedance.larkoffice.com/wiki/RxVXweukSi7JtIkhOKBcuSlbnfC</a></td></tr>
+      <tr><td>TRAE 官网</td><td><a href="https://www.trae.cn/" target="_blank">trae.cn</a></td></tr>
+      <tr><td>TraeWork 下载（桌面端）</td><td><a href="https://www.trae.cn/ide/download" target="_blank">trae.cn/ide/download</a></td></tr>
+      <tr><td>TraeWork 网页版（中国版）</td><td><a href="https://work.trae.cn/" target="_blank">work.trae.cn</a></td></tr>
+      <tr><td>TraeWork 网页版（国际版）</td><td><a href="https://work.trae.ai/" target="_blank">work.trae.ai</a></td></tr>
+      <tr><td>TraeWork 官方社区</td><td><a href="https://forum.trae.cn/c/43-category/43" target="_blank">forum.trae.cn/c/43-category/43</a></td></tr>
+      <tr><td>社区帮助与支持</td><td><a href="https://forum.trae.cn/c/7-category/7" target="_blank">forum.trae.cn/c/7-category/7</a></td></tr>
+      <tr><td>选择 TraeWork 的 20 个理由</td><td><a href="https://bytedance.larkoffice.com/wiki/EuJtwdVCEiGT3LkhQaKcolmdnyg" target="_blank">飞书 Wiki</a></td></tr>
+      <tr><td>TraeWork 的 100+ 种用法</td><td><a href="https://bytedance.larkoffice.com/wiki/Q7LwwktAUirVdkkL027cCAQInCd" target="_blank">飞书 Wiki</a></td></tr>
+      <tr><td>万字长文｜数据分析 7 大场景实战</td><td><a href="https://mp.weixin.qq.com/s/40WMPeJIUEd080X9z9K2ng" target="_blank">微信公众号</a></td></tr>
+      <tr><td>新手必看｜8 个 TraeWork 入门技巧</td><td><a href="https://mp.weixin.qq.com/s/6ivdWmt-92UXfiI2hfYXoA" target="_blank">微信公众号</a></td></tr>
+      <tr><td>「我的文件」上线推文</td><td><a href="https://mp.weixin.qq.com/s/N2dMLK6YQnSfEoAjYX1ouQ" target="_blank">微信公众号</a></td></tr>
+      <tr><td>B 站官方账号</td><td><a href="https://b23.tv/1DFMuKT" target="_blank">b23.tv/1DFMuKT</a></td></tr>
+      <tr><td>小红书官方账号</td><td><a href="https://xhslink.com/m/9FTjEUiFGre" target="_blank">xhslink.com/m/9FTjEUiFGre</a></td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section class="chapter" id="app-b">
+  <div class="chapter-header">
+    <div class="chapter-num">附录 A2</div>
+    <h2 class="chapter-title">常见问题 FAQ</h2>
+  </div>
+
+  <div class="qna">
+    <p class="q">TraeWork 是不是只能给开发用？</p>
+    <p class="a">不是。Code 模式面向开发任务，但 Work 模式更适合文档、数据、汇报、分析等通用办公场景；Design 模式面向设计和原型场景。</p>
+  </div>
+  <div class="qna">
+    <p class="q">会用普通 AI 聊天工具，还需要 TraeWork 吗？</p>
+    <p class="a">如果只是问知识、写短文本，普通聊天工具够用。如果希望 AI 读取资料、拆解任务、调用工具、生成可交付产物，并能跨端持续推进，TraeWork 更合适。</p>
+  </div>
+  <div class="qna">
+    <p class="q">应该用网页版还是桌面端？</p>
+    <p class="a">临时任务、快速体验、云端任务可先用网页版；长期项目、本地文件、代码仓库和复杂任务更建议桌面端。</p>
+  </div>
+  <div class="qna">
+    <p class="q">云端模式和本地模式选哪个？</p>
+    <p class="a">只是聊天、查资料、写文档、生成内容优先选云端；需要 AI 读取或操作电脑上的文件、项目，选本地。</p>
+  </div>
+  <div class="qna">
+    <p class="q">Design 模式是不是 Figma 的替代品？</p>
+    <p class="a">不是简单替代。Design 模式更像 AI 设计协作入口，可导入设计资产、生成方案、二次编辑，并和 Code 模式衔接，帮助设计从创意走向实现。</p>
+  </div>
+  <div class="qna">
+    <p class="q">中国版和国际版注册有什么差异？</p>
+    <p class="a">中国版支持手机号、抖音、苹果账号；国际版支持邮箱和第三方账号授权（如 Google、GitHub）。实际可用方式以登录页展示为准。</p>
+  </div>
+  <div class="qna">
+    <p class="q">任务列表里的任务可以切换吗？</p>
+    <p class="a">可以。点击左侧任务列表中的任务，就能回到对应任务的对话和执行记录。</p>
+  </div>
+  <div class="qna">
+    <p class="q">为什么有时候右侧栏是空的？</p>
+    <p class="a">如果任务还没开始执行，或当前任务没有生成待办、产物和参考信息，右侧栏可能为空。复杂任务执行后通常会出现进度和产物。</p>
+  </div>
+  <div class="qna">
+    <p class="q">技能是什么？怎么用？</p>
+    <p class="a">技能就像给 AI 安装的能力包，让 AI 在特定任务中表现更稳定。点击左侧栏的"技能"，可进入技能市场安装或管理技能。</p>
+  </div>
+  <div class="qna">
+    <p class="q">AI 误删了文件怎么办？</p>
+    <p class="a">TraeWork 安全沙箱机制将删除文件加入电脑的回收站，AI 操作中被误删的内容可直接从回收站找回。</p>
+  </div>
+</section>
+
+<section class="chapter" id="app-c">
+  <div class="chapter-header">
+    <div class="chapter-num">附录 A3</div>
+    <h2 class="chapter-title">内容来源与致谢</h2>
+  </div>
+
+  <p>本书内容全部来自 TraeWork 官方公开资料，主要来源包括：</p>
+  <table>
+    <thead><tr><th>来源</th><th>说明</th></tr></thead>
+    <tbody>
+      <tr><td><a href="https://bytedance.larkoffice.com/wiki/RxVXweukSi7JtIkhOKBcuSlbnfC" target="_blank">TraeWork 官方知识库（飞书 Wiki）</a></td><td>知识库首页、快速导航及下属子文档：什么是 TraeWork、认识 TraeWork 的界面、8 个入门技巧、选择 TraeWork 的 20 个理由、TraeWork 的 100+ 种用法等</td></tr>
+      <tr><td><a href="https://mp.weixin.qq.com/s/N2dMLK6YQnSfEoAjYX1ouQ" target="_blank">TRAE 微信公众号</a></td><td>「我的文件」正式上线推文（第七部分内容）</td></tr>
+      <tr><td>TraeWork 官方社区</td><td>forum.trae.cn 社区版块与帮助支持板块</td></tr>
+    </tbody>
+  </table>
+
+  <p>感谢字节跳动 TraeWork 团队打造这款产品，感谢所有在官方知识库、社区和公众号分享实战经验的用户。本书由 AI 辅助整理，仅供学习参考；产品功能、定价、权益以 <a href="https://www.trae.cn/" target="_blank">trae.cn</a> 官网实时信息为准。</p>
+
+  <div class="callout info" style="margin-top:34px;">
+    <div class="callout-title">个人声明</div>
+    <p>本书由 GoodTime（公众号「宁的 AI 小站」）独立整理，属个人学习型手册，<strong>并非字节跳动或 TraeWork 官方出品</strong>。书中引用的产品名称、标识、界面与功能描述归字节跳动所有；整理者对内容的准确性已尽力核对，但 AI 产品迭代迅速，一切以官方信息为准，据此操作造成的结果请自行判断。</p>
+  </div>
+
+  <div class="follow-card" id="follow">
+    <div class="fc-text">
+      <div class="fc-title">关注公众号「宁的 AI 小站」</div>
+      <div class="fc-desc">全栈 · AI 讲师 · 社区主理人。持续更新 TraeWork 实战、AI 工作流与工具复盘，把真正跑通过的方法讲给你听。</div>
+      <span class="fc-pill">回复「绿皮书」获取电子版 PDF</span>
+      <span class="fc-pill">回复「加群」加入 AI 交流群</span>
+    </div>
+    <div class="fc-qr" aria-label="公众号「宁的 AI 小站」二维码">
+      <img src="assets/qrcode.png" alt="公众号「宁的 AI 小站」二维码">
+    </div>
+  </div>
+
+  <div class="book-footer">
+    <div class="page-tag">TRAEWORK GREEN BOOK · END</div>
+    <p>TraeWork 绿皮书 · v1.0 · 2026 年 8 月<br>
+    整理：GoodTime · 公众号「宁的 AI 小站」<br>
+    基于 TraeWork 官方知识库与 TRAE 公众号公开资料整理</p>
+  </div>
+</section>
+
+</div>
+</main>
+
+<script>
+  // 进度条
+  window.addEventListener('scroll', function() {
+    var fill = document.getElementById('progressFill');
+    if (!fill) return;
+    var st = document.documentElement.scrollTop || document.body.scrollTop;
+    var sh = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+    fill.style.width = (sh > 0 ? (st / sh * 100) : 0) + '%';
+  });
+
+  // 目录高亮
+  var sections = document.querySelectorAll('section.chapter, section.cover');
+  var navLinks = document.querySelectorAll('.toc-item a');
+  function onScroll() {
+    var pos = window.scrollY + 120;
+    var current = '';
+    sections.forEach(function(s) {
+      if (s.offsetTop <= pos) current = s.id;
+    });
+    navLinks.forEach(function(a) {
+      a.classList.toggle('active', a.getAttribute('href') === '#' + current);
+    });
+  }
+  window.addEventListener('scroll', onScroll);
+
+  // 点击目录链接后关闭移动端侧边栏
+  navLinks.forEach(function(a) {
+    a.addEventListener('click', function() {
+      if (window.innerWidth <= 900) {
+        document.getElementById('sidebar').classList.remove('open');
+      }
+    });
+  });
+</script>
+
+</body>
+</html>
+
