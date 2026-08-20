@@ -63,11 +63,24 @@ CNB Pages 作为源站，EdgeOne 仅做 CDN 加速（CNAME 接入）。
 
 ---
 
+## 手动增量更新（当前：GitHub 为主源，CNB 手动同步）
+
+当前源仓库是 GitHub，CNB 通过「导入/镜像」跟随。增量更新三步：
+
+1. **改内容**：在本地 `edgeone-site/` 修改 `index.html` 或 `assets/`；
+2. **推到 GitHub**：运行 `node edgeone-upload.js`（增量脚本，只上传变化的文件、保留提交历史）；
+3. **同步到 CNB**：打开 cnb.cool 仓库 → 点「同步」按钮（git 层增量拉取新提交，非全量重导）→ 流水线自动部署到 EdgeOne。
+
+> 若后续把 CNB 设为主仓库，则第 2、3 步合并为一条 `git push` 到 CNB，流水线自动触发，全程无需手动点同步。
+
+---
+
 ## 本地已完成的准备
 
 - [x] `index.html` 已移除 Google Fonts 等外部依赖（系统字体栈，国内秒开）
-- [x] 全部配图本地化到 `assets/`（27 张官方截图 / 动图）
+- [x] 全部配图本地化到 `assets/`（30 张官方截图 / 动图）
 - [x] `.cnb.yml` 流水线配置（方式 A）
+- [x] `edgeone-upload.js` 增量上传脚本（保留历史、只传变更、快进更新）
 
 ## 待你操作
 
