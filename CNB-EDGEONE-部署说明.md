@@ -63,15 +63,15 @@ CNB Pages 作为源站，EdgeOne 仅做 CDN 加速（CNAME 接入）。
 
 ---
 
-## 手动增量更新（当前：GitHub 为主源，CNB 手动同步）
+## 手动增量更新（GitHub + CNB 双推送）
 
-当前源仓库是 GitHub，CNB 通过「导入/镜像」跟随。增量更新三步：
+当前 CNB 仓库是**普通仓库**（不是「从 GitHub 导入」的镜像，页面**没有「同步」按钮**），更新靠双推送：
 
 1. **改内容**：在本地 `edgeone-site/` 修改 `index.html` 或 `assets/`；
-2. **推到 GitHub**：运行 `node edgeone-upload.js`（增量脚本，只上传变化的文件、保留提交历史）；
-3. **同步到 CNB**：打开 cnb.cool 仓库 → 点「同步」按钮（git 层增量拉取新提交，非全量重导）→ 流水线自动部署到 EdgeOne。
+2. **推 GitHub**：运行 `node edgeone-upload.js`（增量脚本，只上传变化的文件、保留提交历史）；
+3. **直推 CNB**：将 `edgeone-site/` 内容复制到本地 CNB 克隆目录 `cnb-traework-sync/`，执行 `git add . && git commit -m "说明" && git push origin main` → 流水线自动部署到 EdgeOne，无需手动点「同步」。
 
-> 若后续把 CNB 设为主仓库，则第 2、3 步合并为一条 `git push` 到 CNB，流水线自动触发，全程无需手动点同步。
+> 两个源都推送后，GitHub 与 CNB 内容一致；CNB 侧只要 `git push` 成功即自动触发 EdgeOne 部署。
 
 ---
 
